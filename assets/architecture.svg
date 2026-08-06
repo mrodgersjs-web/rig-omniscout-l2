@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400">
+<rect width="1200" height="400" fill="#0A0806"/>
+<text x="600" y="30" text-anchor="middle" font-family="Georgia,serif" font-style="italic" font-size="20" fill="#C8A96E">RIG Omniscout L2 — Pattern Engine Architecture</text>
+<!-- Cards node -->
+<rect x="50" y="80" width="180" height="60" rx="8" fill="#12100C" stroke="#C8A96E" stroke-width="2"/>
+<text x="140" y="105" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#F5F0EB">141 Build Cards</text>
+<text x="140" y="125" text-anchor="middle" font-family="monospace" font-size="10" fill="#A09890">67 fields each</text>
+<!-- ACS node -->
+<rect x="350" y="60" width="200" height="70" rx="8" fill="#12100C" stroke="#C8A96E" stroke-width="2"/>
+<text x="450" y="85" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#C8A96E">Anti-Crowd Score</text>
+<text x="450" y="105" text-anchor="middle" font-family="monospace" font-size="10" fill="#A09890">26 strategies × 25 dims</text>
+<!-- CAR node -->
+<rect x="350" y="165" width="200" height="70" rx="8" fill="#12100C" stroke="#C8A96E" stroke-width="2"/>
+<text x="450" y="190" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#C8A96E">Contradiction Arbitrage</text>
+<text x="450" y="210" text-anchor="middle" font-family="monospace" font-size="10" fill="#A09890">138-node graph · 1783 edges</text>
+<!-- Drift node -->
+<rect x="350" y="270" width="200" height="70" rx="8" fill="#12100C" stroke="#C8A96E" stroke-width="2"/>
+<text x="450" y="295" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#C8A96E">Epistemic Drift</text>
+<text x="450" y="315" text-anchor="middle" font-family="monospace" font-size="10" fill="#A09890">PMI matrix · 43 bridges</text>
+<!-- Output nodes -->
+<rect x="700" y="60" width="180" height="50" rx="8" fill="#12100C" stroke="#5B8C5A" stroke-width="2"/>
+<text x="790" y="90" text-anchor="middle" font-family="monospace" font-size="11" fill="#5B8C5A">DOMINATE / ENTER</text>
+<rect x="700" y="165" width="180" height="50" rx="8" fill="#12100C" stroke="#5B8C5A" stroke-width="2"/>
+<text x="790" y="195" text-anchor="middle" font-family="monospace" font-size="11" fill="#5B8C5A">Breakthrough prediction</text>
+<rect x="700" y="270" width="180" height="50" rx="8" fill="#12100C" stroke="#5B8C5A" stroke-width="2"/>
+<text x="790" y="300" text-anchor="middle" font-family="monospace" font-size="11" fill="#5B8C5A">Concept velocity</text>
+<!-- Dashboard -->
+<rect x="980" y="165" width="160" height="70" rx="8" fill="#12100C" stroke="#C8A96E" stroke-width="2"/>
+<text x="1060" y="195" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#F5F0EB">Dashboard</text>
+<text x="1060" y="215" text-anchor="middle" font-family="monospace" font-size="10" fill="#A09890">live intelligence</text>
+<!-- Connectors -->
+<line x1="230" y1="110" x2="350" y2="95" stroke="#C8A96E" stroke-width="1.5" marker-end="url(#a)"/>
+<line x1="230" y1="110" x2="350" y2="200" stroke="#C8A96E" stroke-width="1.5" marker-end="url(#a)"/>
+<line x1="230" y1="110" x2="350" y2="305" stroke="#C8A96E" stroke-width="1.5" marker-end="url(#a)"/>
+<line x1="550" y1="95" x2="700" y2="85" stroke="#5B8C5A" stroke-width="1.5" marker-end="url(#a)"/>
+<line x1="550" y1="200" x2="700" y2="190" stroke="#5B8C5A" stroke-width="1.5" marker-end="url(#a)"/>
+<line x1="550" y1="305" x2="700" y2="295" stroke="#5B8C5A" stroke-width="1.5" marker-end="url(#a)"/>
+<line x1="880" y1="190" x2="980" y2="190" stroke="#C8A96E" stroke-width="1.5" marker-end="url(#a)"/>
+<defs><marker id="a" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#C8A96E"/></marker></defs>
+</svg>
