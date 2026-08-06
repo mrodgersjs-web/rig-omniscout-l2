@@ -1,0 +1,332 @@
+{
+  "schema": "rig.omniscout.pattern-card.v1",
+  "card_id": "pattern-anticrowd-1",
+  "created_at": "2026-08-06T14:33:08.203300+00:00",
+  "enriched_at": "2026-08-06T14:33:08.203300+00:00",
+  "title": "Anti-crowd opportunity in `doctrine-control-plane`",
+  "claim": "Empty/low-density strategy `doctrine-control-plane` has ACS=45.38 — build before competitors crowd the space (action=BUILD)",
+  "topic": "doctrine-control-plane",
+  "summary": "Empty/low-density strategy `doctrine-control-plane` has ACS=45.38 — build before competitors crowd the space (action=BUILD)",
+  "strategy": {
+    "strategy_id": "doctrine-control-plane",
+    "tier": "T0",
+    "question": "What governs agent doctrine so it does not drift?",
+    "mapped_from_topic": "doctrine-control-plane",
+    "seed": "pattern-anticrowd"
+  },
+  "score": {
+    "schema": "rig.omniscout.build-card-score.v1",
+    "card_id": "pattern-anticrowd-1",
+    "scored_at": "2026-08-06T14:33:08.203832+00:00",
+    "total": 45,
+    "rank": "REJECT",
+    "promote": false,
+    "good_floor": 70,
+    "hard_blocks": [],
+    "breakdown": {
+      "pattern_signal": {
+        "weight": 40,
+        "score": 18,
+        "note": "opportunity strength from pattern engine"
+      },
+      "strategy_fit": {
+        "weight": 25,
+        "score": 25,
+        "note": "mapped to known strategy_id with T0 tier"
+      },
+      "corpus_evidence": {
+        "weight": 20,
+        "score": 20,
+        "note": "adjacent strategy cards provide business context"
+      },
+      "actionability": {
+        "weight": 15,
+        "score": 15,
+        "note": "generic blueprint and deep sections included"
+      },
+      "deterministic_validation": {
+        "weight": 0,
+        "score": 17,
+        "note": "secondary scorer run for consistency; not used for rank"
+      }
+    },
+    "thresholds": {
+      "GOOD": 70,
+      "STRONG": 85,
+      "EXCELLENT": 94
+    },
+    "scorer": "rig_foundry.pattern_generate",
+    "gev": {
+      "builder": "pattern_generate",
+      "verifier": "score_build_card",
+      "split": true
+    }
+  },
+  "pattern_source": {
+    "engine": "anticrowd",
+    "score_label": "ACS",
+    "score": 45.38,
+    "rank": 1,
+    "details": {
+      "strategy_id": "doctrine-control-plane",
+      "tier": "T0",
+      "card_count": 0,
+      "emptiness": 1.0,
+      "market": 0.8067,
+      "adjacent_tam": 4794117647.705882,
+      "regulatory_barrier": 0.9,
+      "rig_advantage": 1.0,
+      "risk_penalty": 0.6,
+      "acs": 45.38,
+      "adjacent_strategies": [
+        "agent-engineering",
+        "automation-runtime",
+        "competitive-intel",
+        "cybersecurity",
+        "determinism-gates",
+        "forecasting-calibration",
+        "founder-performance",
+        "gtm-sales",
+        "healthcare-ai-ops",
+        "knowledge-memory",
+        "leadership-org",
+        "legal-compliance",
+        "local-inference-fleet",
+        "operations",
+        "product-design",
+        "proof-false-done",
+        "scraping-intelligence",
+        "strategy-decision-routing",
+        "vertical-dental-ortho",
+        "vertical-pe-cfo"
+      ],
+      "action": "BUILD"
+    }
+  },
+  "business_intelligence": {
+    "revenue_model": "Consulting + custom build",
+    "price_range": "$5K-20K/mo",
+    "estimated_cac": "$3K-8K",
+    "estimated_ltv": "$60K-240K",
+    "ltv_cac_ratio": "N/A",
+    "gross_margin": "70%",
+    "tam": "$2-5B",
+    "sam": "$0.0B (RIG's serviceable segment)",
+    "revenue_ideas": [
+      "Productize as `unmapped` capability — sell as Consulting + custom build",
+      "Package as a build card for fractional CAIO clients at $5K-20K/mo",
+      "Productize as `proof-false-done` capability — sell as Verification SaaS + audit licensing",
+      "Package as a build card for fractional CAIO clients at $500-5K/mo",
+      "Open-source the core, sell managed cloud + enterprise support"
+    ],
+    "competitive_moat": [
+      "Consensus-backed evidence base — competitors can't replicate the research depth",
+      "RIG doctrine governance — proof-chained quality that consulting firms can't match",
+      "Local-first fleet — data sovereignty advantage over cloud-only competitors",
+      "Entity graph with 17 extracted concepts — compounding knowledge advantage",
+      "Entity graph with 12 extracted concepts — compounding knowledge advantage"
+    ],
+    "monetization_priority": "HIGH",
+    "build_effort": "1-3 weeks"
+  },
+  "engineering_blueprint": {
+    "tech_stack": {
+      "backend": [
+        "Python"
+      ],
+      "infra": [
+        "Docker",
+        "Prefect"
+      ]
+    },
+    "architecture_components": [
+      "doctrine_control_plane_core",
+      "pattern_signal_ingest",
+      "deterministic_scorer",
+      "proof_sealer"
+    ],
+    "implementation_steps": [
+      {
+        "step": 1,
+        "action": "Define goal-card for `doctrine-control-plane` with executable done-test",
+        "gate": "ultraplan"
+      },
+      {
+        "step": 2,
+        "action": "Scaffold `doctrine-control-plane` module in rig_foundry",
+        "gate": "create"
+      },
+      {
+        "step": 3,
+        "action": "Build core pattern detector for `doctrine-control-plane`",
+        "gate": "build"
+      },
+      {
+        "step": 4,
+        "action": "Wire deterministic gates (score >= 70, no LLM in rank path)",
+        "gate": "verify"
+      },
+      {
+        "step": 5,
+        "action": "Add ProofPacket sealing + hash chain",
+        "gate": "prove"
+      },
+      {
+        "step": 6,
+        "action": "Deploy to Prefect nightly flow",
+        "gate": "ship"
+      }
+    ],
+    "harness": {
+      "type": "TAC closed-loop",
+      "builder": "rig-agent (Hermes/Claude/Codex)",
+      "verifier": "deterministic scorer + GEV separate identity",
+      "loop": "build -> score -> verify artifact -> seal ProofPacket -> deploy",
+      "timeout_s": 3600,
+      "retry_policy": "exponential backoff, max 3, fail-closed"
+    },
+    "testing_strategy": {
+      "unit": "pytest with deterministic fixtures",
+      "integration": "Run against L2 card corpus snapshot",
+      "regression": "Plant failures; verify scorer goes RED then GREEN"
+    },
+    "estimated_loc": "300-800",
+    "complexity": "MEDIUM"
+  },
+  "council": {
+    "schema": "rig.omniscout.council-review.v1",
+    "reviewed_at": "2026-08-06T14:33:08.203812+00:00",
+    "perspectives": [
+      {
+        "role": "business_strategist",
+        "analysis": "Pattern engine selected `doctrine-control-plane` with score 45. Opportunity is directional; validate with adjacent-card evidence.",
+        "recommendation": [
+          "Confirm strategy tier admission",
+          "Validate build scope in 1-week spike",
+          "Set kill criteria before code"
+        ],
+        "risk": "Signal may reflect data artifact rather than true market gap.",
+        "question_to_council": "Does adjacent corpus provide enough evidence to justify a build?",
+        "vote": "CONDITIONAL"
+      },
+      {
+        "role": "engineering_lead",
+        "analysis": "Build is a medium-complexity Python module scoped to `doctrine-control-plane`. Harness follows existing TAC closed-loop pattern.",
+        "recommendation": [
+          "Reuse atomic_json / score_build_card from omniscout_build_cards",
+          "Add deterministic regression tests",
+          "Seal ProofPacket on green"
+        ],
+        "risk": "Scope creep if pattern signal is interpreted as full product.",
+        "question_to_council": "Can MVP ship in under 2 weeks with a real done-test?",
+        "vote": "CONDITIONAL"
+      },
+      {
+        "role": "risk_officer",
+        "analysis": "Pattern-derived card lacks primary research. Acceptable as a build trigger only if paired with existing corpus evidence.",
+        "recommendation": [
+          "Require >=3 adjacent cards",
+          "Run Gate-D before public work",
+          "Log assumption provenance"
+        ],
+        "risk": "False positive from pattern-engine artifact.",
+        "question_to_council": "Are kill criteria explicit and reversible?",
+        "vote": "NO-GO"
+      }
+    ],
+    "synthesis": {
+      "overall_verdict": "CONDITIONAL",
+      "confidence_score": 45
+    }
+  },
+  "council_summary": {
+    "verdict": "CONDITIONAL",
+    "confidence": 45,
+    "go_votes": 0,
+    "lead_action": "Validate `doctrine-control-plane` with adjacent-card evidence and spike scope."
+  },
+  "deep_sections": {
+    "deep_engineering": {
+      "title": "Deep Engineering Blueprint",
+      "content": "Pattern engine surfaced `doctrine-control-plane` as a priority build. Core system: deterministic scorer, signal ingest, and proof sealing."
+    },
+    "deep_business": {
+      "title": "Deep Business Model",
+      "content": "Opportunity claim: Empty/low-density strategy `doctrine-control-plane` has ACS=45.38 — build before competitors crowd the space (action=BUILD) Revenue model follows adjacent strategy cards; pilot scope is 1-2 weeks."
+    },
+    "deep_gtm": {
+      "title": "Deep GTM Motion",
+      "content": "Launch as a `doctrine-control-plane` capability build card. Lead with the pattern-engine insight in LinkedIn Field Notes and RIG Substack."
+    },
+    "deep_agents": {
+      "title": "Deep Agent Team",
+      "content": "Builder agent produces implementation; verifier agent runs deterministic gates; council agent validates assumptions."
+    },
+    "deep_research": {
+      "title": "Deep Research Dossier",
+      "content": "Derived from existing L2 `doctrine-control-plane` cards and pattern-engine output. No new LLM synthesis in rank path."
+    },
+    "deep_risk": {
+      "title": "Deep Risk Analysis",
+      "content": "Risk: pattern signal is directional, not proof. Mitigation: require adjacent-card evidence and human Gate-D before build."
+    },
+    "deep_testing": {
+      "title": "Deep Testing Strategy",
+      "content": "Unit tests for deterministic scoring; integration tests against frozen card corpus; regression tests plant failures."
+    },
+    "deep_ops": {
+      "title": "Deep Operations Runbook",
+      "content": "Nightly Prefect flow regenerates pattern cards; diff against prior run; alert on strategy mapping drift."
+    }
+  },
+  "doctrine_domains": [
+    "rig-mesh",
+    "rig-ide"
+  ],
+  "tags": [
+    "pattern-engine",
+    "anticrowd",
+    "doctrine-control-plane",
+    "opportunity"
+  ],
+  "sources": {
+    "count": 0,
+    "urls": [],
+    "types": [
+      "pattern-engine"
+    ],
+    "l0_note_paths": [],
+    "avg_l0_quality": 0
+  },
+  "entities": {
+    "entities": [],
+    "relationships": [],
+    "entity_count": 0,
+    "relationship_count": 0,
+    "entity_types": {}
+  },
+  "semantic_links": {
+    "links": [],
+    "contradictions": [],
+    "link_count": 0,
+    "contradiction_count": 0,
+    "supports_count": 0,
+    "extends_count": 0,
+    "graph_density": 0.0
+  },
+  "temporal_validity": {
+    "freshness": "FRESH",
+    "age_years": 0.0
+  },
+  "autobuilt": {
+    "built": false,
+    "verified": false,
+    "proof_sealed": false
+  },
+  "outcome": {
+    "status": "pattern_opportunity",
+    "feedback_score": null
+  },
+  "card_sha256": "9071da6a91133f8a1d7cb29101ec050e4bd3792f1ef4c581ae0b0ea02e8dc1fe",
+  "artifact_sha256": ""
+}

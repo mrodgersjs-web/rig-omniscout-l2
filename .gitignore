@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+dist/
+build/
+.DS_Store
+*.log
+.env
+cards/
+built/
+content/
+meta-cards/
+pattern-cards/
+l8-packets/
+images/

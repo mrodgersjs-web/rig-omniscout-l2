@@ -1,0 +1,446 @@
+{
+  "schema": "rig.omniscout.pattern-card.v1",
+  "card_id": "pattern-drift-1",
+  "created_at": "2026-08-06T14:33:08.209713+00:00",
+  "enriched_at": "2026-08-06T14:33:08.209713+00:00",
+  "title": "Epistemic drift frontier in `gtm-sales`",
+  "claim": "Strategy `gtm-sales` shows drift_score=0.166493 with 10 frontier entities — synthesize the emerging concepts before doctrine drifts",
+  "topic": "gtm-sales",
+  "summary": "Strategy `gtm-sales` shows drift_score=0.166493 with 10 frontier entities — synthesize the emerging concepts before doctrine drifts",
+  "strategy": {
+    "strategy_id": "gtm-sales",
+    "tier": "T0",
+    "question": "How do founder-led sales scale without losing authenticity?",
+    "mapped_from_topic": "gtm-sales",
+    "seed": "pattern-drift"
+  },
+  "score": {
+    "schema": "rig.omniscout.build-card-score.v1",
+    "card_id": "pattern-drift-1",
+    "scored_at": "2026-08-06T14:33:08.209791+00:00",
+    "total": 16,
+    "rank": "REJECT",
+    "promote": false,
+    "good_floor": 70,
+    "hard_blocks": [],
+    "breakdown": {
+      "pattern_signal": {
+        "weight": 40,
+        "score": 6,
+        "note": "opportunity strength from pattern engine"
+      },
+      "strategy_fit": {
+        "weight": 25,
+        "score": 25,
+        "note": "mapped to known strategy_id with T0 tier"
+      },
+      "corpus_evidence": {
+        "weight": 20,
+        "score": 20,
+        "note": "adjacent strategy cards provide business context"
+      },
+      "actionability": {
+        "weight": 15,
+        "score": 15,
+        "note": "generic blueprint and deep sections included"
+      },
+      "deterministic_validation": {
+        "weight": 0,
+        "score": 17,
+        "note": "secondary scorer run for consistency; not used for rank"
+      }
+    },
+    "thresholds": {
+      "GOOD": 70,
+      "STRONG": 85,
+      "EXCELLENT": 94
+    },
+    "scorer": "rig_foundry.pattern_generate",
+    "gev": {
+      "builder": "pattern_generate",
+      "verifier": "score_build_card",
+      "split": true
+    }
+  },
+  "pattern_source": {
+    "engine": "drift",
+    "score_label": "drift",
+    "score": 16.6493,
+    "rank": 1,
+    "details": {
+      "strategy_id": "gtm-sales",
+      "card_count": 6,
+      "tier": "T1",
+      "total_entities": 31,
+      "frontier_entities": 10,
+      "frontier_ratio": 0.322581,
+      "dominant_type": "CONCEPT",
+      "cross_domain_entities": 16,
+      "cross_domain_ratio": 0.516129,
+      "drift_score": 0.166493,
+      "concept_velocity": 1.0,
+      "entity_types": {
+        "CONCEPT": 15,
+        "METRIC": 12,
+        "COMPANY": 3,
+        "TOOL": 1
+      },
+      "frontier_entity_names": [
+        "0.39%",
+        "0.51%",
+        "1.0%",
+        "1.2%",
+        "10.80%",
+        "17%",
+        "20%",
+        "31%",
+        "70%",
+        "9.05%"
+      ],
+      "cross_domain_entity_names": [
+        "0.39%",
+        "0.51%",
+        "1.0%",
+        "1.2%",
+        "10.80%",
+        "17%",
+        "20%",
+        "31%",
+        "50%",
+        "70%",
+        "80%",
+        "9.05%",
+        "anthropic",
+        "claude",
+        "google",
+        "meta"
+      ],
+      "ego_vector": [
+        {
+          "name": "gtm",
+          "type": "CONCEPT",
+          "cooccurrence_count": 49
+        },
+        {
+          "name": "strategy",
+          "type": "CONCEPT",
+          "cooccurrence_count": 49
+        },
+        {
+          "name": "lan",
+          "type": "CONCEPT",
+          "cooccurrence_count": 36
+        },
+        {
+          "name": "market",
+          "type": "CONCEPT",
+          "cooccurrence_count": 36
+        },
+        {
+          "name": "experiment",
+          "type": "CONCEPT",
+          "cooccurrence_count": 32
+        },
+        {
+          "name": "icp",
+          "type": "CONCEPT",
+          "cooccurrence_count": 32
+        },
+        {
+          "name": "content",
+          "type": "CONCEPT",
+          "cooccurrence_count": 30
+        },
+        {
+          "name": "channel",
+          "type": "CONCEPT",
+          "cooccurrence_count": 26
+        },
+        {
+          "name": "gate",
+          "type": "CONCEPT",
+          "cooccurrence_count": 26
+        },
+        {
+          "name": "80%",
+          "type": "METRIC",
+          "cooccurrence_count": 17
+        },
+        {
+          "name": "0.39%",
+          "type": "METRIC",
+          "cooccurrence_count": 17
+        },
+        {
+          "name": "0.51%",
+          "type": "METRIC",
+          "cooccurrence_count": 17
+        },
+        {
+          "name": "1.0%",
+          "type": "METRIC",
+          "cooccurrence_count": 17
+        },
+        {
+          "name": "1.2%",
+          "type": "METRIC",
+          "cooccurrence_count": 17
+        },
+        {
+          "name": "10.80%",
+          "type": "METRIC",
+          "cooccurrence_count": 17
+        },
+        {
+          "name": "17%",
+          "type": "METRIC",
+          "cooccurrence_count": 17
+        },
+        {
+          "name": "20%",
+          "type": "METRIC",
+          "cooccurrence_count": 17
+        },
+        {
+          "name": "31%",
+          "type": "METRIC",
+          "cooccurrence_count": 17
+        },
+        {
+          "name": "9.05%",
+          "type": "METRIC",
+          "cooccurrence_count": 17
+        },
+        {
+          "name": "decision",
+          "type": "CONCEPT",
+          "cooccurrence_count": 15
+        }
+      ]
+    }
+  },
+  "business_intelligence": {
+    "revenue_model": "GTM automation retainer + pipeline rev-share",
+    "price_range": "$10K-30K/mo",
+    "estimated_cac": "$5K-10K",
+    "estimated_ltv": "$120K-360K",
+    "ltv_cac_ratio": "N/A",
+    "gross_margin": "65%",
+    "tam": "$12B",
+    "sam": "$0.1B (RIG's serviceable segment)",
+    "revenue_ideas": [
+      "Productize as `gtm-sales` capability — sell as GTM automation retainer + pipeline rev-share",
+      "Package as a build card for fractional CAIO clients at $10K-30K/mo",
+      "Vertical-specific pricing: charge 2-3x for regulated industries",
+      "Bundle with adjacent T1 capabilities for sticky multi-product deals"
+    ],
+    "competitive_moat": [
+      "Consensus-backed evidence base — competitors can't replicate the research depth",
+      "RIG doctrine governance — proof-chained quality that consulting firms can't match",
+      "Local-first fleet — data sovereignty advantage over cloud-only competitors",
+      "Entity graph with 11 extracted concepts — compounding knowledge advantage",
+      "Entity graph with 18 extracted concepts — compounding knowledge advantage"
+    ],
+    "monetization_priority": "HIGH",
+    "build_effort": "1-3 weeks"
+  },
+  "engineering_blueprint": {
+    "tech_stack": {
+      "backend": [
+        "Python"
+      ],
+      "infra": [
+        "Docker",
+        "Prefect"
+      ]
+    },
+    "architecture_components": [
+      "gtm_sales_core",
+      "pattern_signal_ingest",
+      "deterministic_scorer",
+      "proof_sealer"
+    ],
+    "implementation_steps": [
+      {
+        "step": 1,
+        "action": "Define goal-card for `gtm-sales` with executable done-test",
+        "gate": "ultraplan"
+      },
+      {
+        "step": 2,
+        "action": "Scaffold `gtm-sales` module in rig_foundry",
+        "gate": "create"
+      },
+      {
+        "step": 3,
+        "action": "Build core pattern detector for `gtm-sales`",
+        "gate": "build"
+      },
+      {
+        "step": 4,
+        "action": "Wire deterministic gates (score >= 70, no LLM in rank path)",
+        "gate": "verify"
+      },
+      {
+        "step": 5,
+        "action": "Add ProofPacket sealing + hash chain",
+        "gate": "prove"
+      },
+      {
+        "step": 6,
+        "action": "Deploy to Prefect nightly flow",
+        "gate": "ship"
+      }
+    ],
+    "harness": {
+      "type": "TAC closed-loop",
+      "builder": "rig-agent (Hermes/Claude/Codex)",
+      "verifier": "deterministic scorer + GEV separate identity",
+      "loop": "build -> score -> verify artifact -> seal ProofPacket -> deploy",
+      "timeout_s": 3600,
+      "retry_policy": "exponential backoff, max 3, fail-closed"
+    },
+    "testing_strategy": {
+      "unit": "pytest with deterministic fixtures",
+      "integration": "Run against L2 card corpus snapshot",
+      "regression": "Plant failures; verify scorer goes RED then GREEN"
+    },
+    "estimated_loc": "300-800",
+    "complexity": "MEDIUM"
+  },
+  "council": {
+    "schema": "rig.omniscout.council-review.v1",
+    "reviewed_at": "2026-08-06T14:33:08.209780+00:00",
+    "perspectives": [
+      {
+        "role": "business_strategist",
+        "analysis": "Pattern engine selected `gtm-sales` with score 16. Opportunity is directional; validate with adjacent-card evidence.",
+        "recommendation": [
+          "Confirm strategy tier admission",
+          "Validate build scope in 1-week spike",
+          "Set kill criteria before code"
+        ],
+        "risk": "Signal may reflect data artifact rather than true market gap.",
+        "question_to_council": "Does adjacent corpus provide enough evidence to justify a build?",
+        "vote": "CONDITIONAL"
+      },
+      {
+        "role": "engineering_lead",
+        "analysis": "Build is a medium-complexity Python module scoped to `gtm-sales`. Harness follows existing TAC closed-loop pattern.",
+        "recommendation": [
+          "Reuse atomic_json / score_build_card from omniscout_build_cards",
+          "Add deterministic regression tests",
+          "Seal ProofPacket on green"
+        ],
+        "risk": "Scope creep if pattern signal is interpreted as full product.",
+        "question_to_council": "Can MVP ship in under 2 weeks with a real done-test?",
+        "vote": "CONDITIONAL"
+      },
+      {
+        "role": "risk_officer",
+        "analysis": "Pattern-derived card lacks primary research. Acceptable as a build trigger only if paired with existing corpus evidence.",
+        "recommendation": [
+          "Require >=3 adjacent cards",
+          "Run Gate-D before public work",
+          "Log assumption provenance"
+        ],
+        "risk": "False positive from pattern-engine artifact.",
+        "question_to_council": "Are kill criteria explicit and reversible?",
+        "vote": "NO-GO"
+      }
+    ],
+    "synthesis": {
+      "overall_verdict": "CONDITIONAL",
+      "confidence_score": 16
+    }
+  },
+  "council_summary": {
+    "verdict": "CONDITIONAL",
+    "confidence": 16,
+    "go_votes": 0,
+    "lead_action": "Validate `gtm-sales` with adjacent-card evidence and spike scope."
+  },
+  "deep_sections": {
+    "deep_engineering": {
+      "title": "Deep Engineering Blueprint",
+      "content": "Pattern engine surfaced `gtm-sales` as a priority build. Core system: deterministic scorer, signal ingest, and proof sealing."
+    },
+    "deep_business": {
+      "title": "Deep Business Model",
+      "content": "Opportunity claim: Strategy `gtm-sales` shows drift_score=0.166493 with 10 frontier entities — synthesize the emerging concepts before doctrine drifts Revenue model follows adjacent strategy cards; pilot scope is 1-2 weeks."
+    },
+    "deep_gtm": {
+      "title": "Deep GTM Motion",
+      "content": "Launch as a `gtm-sales` capability build card. Lead with the pattern-engine insight in LinkedIn Field Notes and RIG Substack."
+    },
+    "deep_agents": {
+      "title": "Deep Agent Team",
+      "content": "Builder agent produces implementation; verifier agent runs deterministic gates; council agent validates assumptions."
+    },
+    "deep_research": {
+      "title": "Deep Research Dossier",
+      "content": "Derived from existing L2 `gtm-sales` cards and pattern-engine output. No new LLM synthesis in rank path."
+    },
+    "deep_risk": {
+      "title": "Deep Risk Analysis",
+      "content": "Risk: pattern signal is directional, not proof. Mitigation: require adjacent-card evidence and human Gate-D before build."
+    },
+    "deep_testing": {
+      "title": "Deep Testing Strategy",
+      "content": "Unit tests for deterministic scoring; integration tests against frozen card corpus; regression tests plant failures."
+    },
+    "deep_ops": {
+      "title": "Deep Operations Runbook",
+      "content": "Nightly Prefect flow regenerates pattern cards; diff against prior run; alert on strategy mapping drift."
+    }
+  },
+  "doctrine_domains": [
+    "competitive-intel"
+  ],
+  "tags": [
+    "pattern-engine",
+    "drift",
+    "gtm-sales",
+    "opportunity"
+  ],
+  "sources": {
+    "count": 0,
+    "urls": [],
+    "types": [
+      "pattern-engine"
+    ],
+    "l0_note_paths": [],
+    "avg_l0_quality": 0
+  },
+  "entities": {
+    "entities": [],
+    "relationships": [],
+    "entity_count": 0,
+    "relationship_count": 0,
+    "entity_types": {}
+  },
+  "semantic_links": {
+    "links": [],
+    "contradictions": [],
+    "link_count": 0,
+    "contradiction_count": 0,
+    "supports_count": 0,
+    "extends_count": 0,
+    "graph_density": 0.0
+  },
+  "temporal_validity": {
+    "freshness": "FRESH",
+    "age_years": 0.0
+  },
+  "autobuilt": {
+    "built": false,
+    "verified": false,
+    "proof_sealed": false
+  },
+  "outcome": {
+    "status": "pattern_opportunity",
+    "feedback_score": null
+  },
+  "card_sha256": "b84e4671f1f504c41c4272ee0a0e3aa33e1d4c5a0754f99a51930fd7a912b11b",
+  "artifact_sha256": ""
+}

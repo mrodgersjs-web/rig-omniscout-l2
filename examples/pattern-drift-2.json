@@ -1,0 +1,430 @@
+{
+  "schema": "rig.omniscout.pattern-card.v1",
+  "card_id": "pattern-drift-2",
+  "created_at": "2026-08-06T14:33:08.210386+00:00",
+  "enriched_at": "2026-08-06T14:33:08.210386+00:00",
+  "title": "Epistemic drift frontier in `founder-performance`",
+  "claim": "Strategy `founder-performance` shows drift_score=0.047337 with 4 frontier entities — synthesize the emerging concepts before doctrine drifts",
+  "topic": "founder-performance",
+  "summary": "Strategy `founder-performance` shows drift_score=0.047337 with 4 frontier entities — synthesize the emerging concepts before doctrine drifts",
+  "strategy": {
+    "strategy_id": "founder-performance",
+    "tier": "T0",
+    "question": "How do founders sustain high-leverage output?",
+    "mapped_from_topic": "founder-performance",
+    "seed": "pattern-drift"
+  },
+  "score": {
+    "schema": "rig.omniscout.build-card-score.v1",
+    "card_id": "pattern-drift-2",
+    "scored_at": "2026-08-06T14:33:08.210465+00:00",
+    "total": 2,
+    "rank": "REJECT",
+    "promote": false,
+    "good_floor": 70,
+    "hard_blocks": [],
+    "breakdown": {
+      "pattern_signal": {
+        "weight": 40,
+        "score": 0,
+        "note": "opportunity strength from pattern engine"
+      },
+      "strategy_fit": {
+        "weight": 25,
+        "score": 25,
+        "note": "mapped to known strategy_id with T0 tier"
+      },
+      "corpus_evidence": {
+        "weight": 20,
+        "score": 20,
+        "note": "adjacent strategy cards provide business context"
+      },
+      "actionability": {
+        "weight": 15,
+        "score": 15,
+        "note": "generic blueprint and deep sections included"
+      },
+      "deterministic_validation": {
+        "weight": 0,
+        "score": 17,
+        "note": "secondary scorer run for consistency; not used for rank"
+      }
+    },
+    "thresholds": {
+      "GOOD": 70,
+      "STRONG": 85,
+      "EXCELLENT": 94
+    },
+    "scorer": "rig_foundry.pattern_generate",
+    "gev": {
+      "builder": "pattern_generate",
+      "verifier": "score_build_card",
+      "split": true
+    }
+  },
+  "pattern_source": {
+    "engine": "drift",
+    "score_label": "drift",
+    "score": 4.7337,
+    "rank": 2,
+    "details": {
+      "strategy_id": "founder-performance",
+      "card_count": 6,
+      "tier": "T2",
+      "total_entities": 26,
+      "frontier_entities": 4,
+      "frontier_ratio": 0.153846,
+      "dominant_type": "CONCEPT",
+      "cross_domain_entities": 8,
+      "cross_domain_ratio": 0.307692,
+      "drift_score": 0.047337,
+      "concept_velocity": 1.0,
+      "entity_types": {
+        "CONCEPT": 18,
+        "METRIC": 4,
+        "METHOD": 3,
+        "COMPANY": 1
+      },
+      "frontier_entity_names": [
+        "39.1%",
+        "5%",
+        "deep work",
+        "habit"
+      ],
+      "cross_domain_entity_names": [
+        "35%",
+        "39.1%",
+        "48%",
+        "5%",
+        "meta",
+        "meta-analysis",
+        "randomized controlled",
+        "systematic review"
+      ],
+      "ego_vector": [
+        {
+          "name": "adhd",
+          "type": "CONCEPT",
+          "cooccurrence_count": 53
+        },
+        {
+          "name": "strategy",
+          "type": "CONCEPT",
+          "cooccurrence_count": 53
+        },
+        {
+          "name": "systematic review",
+          "type": "METHOD",
+          "cooccurrence_count": 36
+        },
+        {
+          "name": "app",
+          "type": "CONCEPT",
+          "cooccurrence_count": 31
+        },
+        {
+          "name": "meta",
+          "type": "COMPANY",
+          "cooccurrence_count": 28
+        },
+        {
+          "name": "meta-analysis",
+          "type": "METHOD",
+          "cooccurrence_count": 28
+        },
+        {
+          "name": "lan",
+          "type": "CONCEPT",
+          "cooccurrence_count": 27
+        },
+        {
+          "name": "cognitive",
+          "type": "CONCEPT",
+          "cooccurrence_count": 22
+        },
+        {
+          "name": "determin",
+          "type": "CONCEPT",
+          "cooccurrence_count": 22
+        },
+        {
+          "name": "tac",
+          "type": "CONCEPT",
+          "cooccurrence_count": 22
+        },
+        {
+          "name": "gate",
+          "type": "CONCEPT",
+          "cooccurrence_count": 21
+        },
+        {
+          "name": "randomized controlled",
+          "type": "METHOD",
+          "cooccurrence_count": 21
+        },
+        {
+          "name": "35%",
+          "type": "METRIC",
+          "cooccurrence_count": 20
+        },
+        {
+          "name": "48%",
+          "type": "METRIC",
+          "cooccurrence_count": 20
+        },
+        {
+          "name": "experiment",
+          "type": "CONCEPT",
+          "cooccurrence_count": 20
+        },
+        {
+          "name": "worker",
+          "type": "CONCEPT",
+          "cooccurrence_count": 20
+        },
+        {
+          "name": "post",
+          "type": "CONCEPT",
+          "cooccurrence_count": 17
+        },
+        {
+          "name": "causal",
+          "type": "CONCEPT",
+          "cooccurrence_count": 15
+        },
+        {
+          "name": "39.1%",
+          "type": "METRIC",
+          "cooccurrence_count": 11
+        },
+        {
+          "name": "decision",
+          "type": "CONCEPT",
+          "cooccurrence_count": 11
+        }
+      ]
+    }
+  },
+  "business_intelligence": {
+    "revenue_model": "Consulting + custom build",
+    "price_range": "$5K-20K/mo",
+    "estimated_cac": "$3K-8K",
+    "estimated_ltv": "$60K-240K",
+    "ltv_cac_ratio": "N/A",
+    "gross_margin": "70%",
+    "tam": "$2-5B",
+    "sam": "$0.0B (RIG's serviceable segment)",
+    "revenue_ideas": [
+      "Productize as `founder-performance` capability — sell as Consulting + custom build",
+      "Package as a build card for fractional CAIO clients at $5K-20K/mo"
+    ],
+    "competitive_moat": [
+      "Consensus-backed evidence base — competitors can't replicate the research depth",
+      "RIG doctrine governance — proof-chained quality that consulting firms can't match",
+      "Local-first fleet — data sovereignty advantage over cloud-only competitors",
+      "Entity graph with 12 extracted concepts — compounding knowledge advantage",
+      "Entity graph with 7 extracted concepts — compounding knowledge advantage"
+    ],
+    "monetization_priority": "MEDIUM",
+    "build_effort": "1-2 weeks"
+  },
+  "engineering_blueprint": {
+    "tech_stack": {
+      "backend": [
+        "Python"
+      ],
+      "infra": [
+        "Docker",
+        "Prefect"
+      ]
+    },
+    "architecture_components": [
+      "founder_performance_core",
+      "pattern_signal_ingest",
+      "deterministic_scorer",
+      "proof_sealer"
+    ],
+    "implementation_steps": [
+      {
+        "step": 1,
+        "action": "Define goal-card for `founder-performance` with executable done-test",
+        "gate": "ultraplan"
+      },
+      {
+        "step": 2,
+        "action": "Scaffold `founder-performance` module in rig_foundry",
+        "gate": "create"
+      },
+      {
+        "step": 3,
+        "action": "Build core pattern detector for `founder-performance`",
+        "gate": "build"
+      },
+      {
+        "step": 4,
+        "action": "Wire deterministic gates (score >= 70, no LLM in rank path)",
+        "gate": "verify"
+      },
+      {
+        "step": 5,
+        "action": "Add ProofPacket sealing + hash chain",
+        "gate": "prove"
+      },
+      {
+        "step": 6,
+        "action": "Deploy to Prefect nightly flow",
+        "gate": "ship"
+      }
+    ],
+    "harness": {
+      "type": "TAC closed-loop",
+      "builder": "rig-agent (Hermes/Claude/Codex)",
+      "verifier": "deterministic scorer + GEV separate identity",
+      "loop": "build -> score -> verify artifact -> seal ProofPacket -> deploy",
+      "timeout_s": 3600,
+      "retry_policy": "exponential backoff, max 3, fail-closed"
+    },
+    "testing_strategy": {
+      "unit": "pytest with deterministic fixtures",
+      "integration": "Run against L2 card corpus snapshot",
+      "regression": "Plant failures; verify scorer goes RED then GREEN"
+    },
+    "estimated_loc": "300-800",
+    "complexity": "MEDIUM"
+  },
+  "council": {
+    "schema": "rig.omniscout.council-review.v1",
+    "reviewed_at": "2026-08-06T14:33:08.210455+00:00",
+    "perspectives": [
+      {
+        "role": "business_strategist",
+        "analysis": "Pattern engine selected `founder-performance` with score 2. Opportunity is directional; validate with adjacent-card evidence.",
+        "recommendation": [
+          "Confirm strategy tier admission",
+          "Validate build scope in 1-week spike",
+          "Set kill criteria before code"
+        ],
+        "risk": "Signal may reflect data artifact rather than true market gap.",
+        "question_to_council": "Does adjacent corpus provide enough evidence to justify a build?",
+        "vote": "CONDITIONAL"
+      },
+      {
+        "role": "engineering_lead",
+        "analysis": "Build is a medium-complexity Python module scoped to `founder-performance`. Harness follows existing TAC closed-loop pattern.",
+        "recommendation": [
+          "Reuse atomic_json / score_build_card from omniscout_build_cards",
+          "Add deterministic regression tests",
+          "Seal ProofPacket on green"
+        ],
+        "risk": "Scope creep if pattern signal is interpreted as full product.",
+        "question_to_council": "Can MVP ship in under 2 weeks with a real done-test?",
+        "vote": "CONDITIONAL"
+      },
+      {
+        "role": "risk_officer",
+        "analysis": "Pattern-derived card lacks primary research. Acceptable as a build trigger only if paired with existing corpus evidence.",
+        "recommendation": [
+          "Require >=3 adjacent cards",
+          "Run Gate-D before public work",
+          "Log assumption provenance"
+        ],
+        "risk": "False positive from pattern-engine artifact.",
+        "question_to_council": "Are kill criteria explicit and reversible?",
+        "vote": "NO-GO"
+      }
+    ],
+    "synthesis": {
+      "overall_verdict": "CONDITIONAL",
+      "confidence_score": 2
+    }
+  },
+  "council_summary": {
+    "verdict": "CONDITIONAL",
+    "confidence": 2,
+    "go_votes": 0,
+    "lead_action": "Validate `founder-performance` with adjacent-card evidence and spike scope."
+  },
+  "deep_sections": {
+    "deep_engineering": {
+      "title": "Deep Engineering Blueprint",
+      "content": "Pattern engine surfaced `founder-performance` as a priority build. Core system: deterministic scorer, signal ingest, and proof sealing."
+    },
+    "deep_business": {
+      "title": "Deep Business Model",
+      "content": "Opportunity claim: Strategy `founder-performance` shows drift_score=0.047337 with 4 frontier entities — synthesize the emerging concepts before doctrine drifts Revenue model follows adjacent strategy cards; pilot scope is 1-2 weeks."
+    },
+    "deep_gtm": {
+      "title": "Deep GTM Motion",
+      "content": "Launch as a `founder-performance` capability build card. Lead with the pattern-engine insight in LinkedIn Field Notes and RIG Substack."
+    },
+    "deep_agents": {
+      "title": "Deep Agent Team",
+      "content": "Builder agent produces implementation; verifier agent runs deterministic gates; council agent validates assumptions."
+    },
+    "deep_research": {
+      "title": "Deep Research Dossier",
+      "content": "Derived from existing L2 `founder-performance` cards and pattern-engine output. No new LLM synthesis in rank path."
+    },
+    "deep_risk": {
+      "title": "Deep Risk Analysis",
+      "content": "Risk: pattern signal is directional, not proof. Mitigation: require adjacent-card evidence and human Gate-D before build."
+    },
+    "deep_testing": {
+      "title": "Deep Testing Strategy",
+      "content": "Unit tests for deterministic scoring; integration tests against frozen card corpus; regression tests plant failures."
+    },
+    "deep_ops": {
+      "title": "Deep Operations Runbook",
+      "content": "Nightly Prefect flow regenerates pattern cards; diff against prior run; alert on strategy mapping drift."
+    }
+  },
+  "doctrine_domains": [
+    "engineering-capability"
+  ],
+  "tags": [
+    "pattern-engine",
+    "drift",
+    "founder-performance",
+    "opportunity"
+  ],
+  "sources": {
+    "count": 0,
+    "urls": [],
+    "types": [
+      "pattern-engine"
+    ],
+    "l0_note_paths": [],
+    "avg_l0_quality": 0
+  },
+  "entities": {
+    "entities": [],
+    "relationships": [],
+    "entity_count": 0,
+    "relationship_count": 0,
+    "entity_types": {}
+  },
+  "semantic_links": {
+    "links": [],
+    "contradictions": [],
+    "link_count": 0,
+    "contradiction_count": 0,
+    "supports_count": 0,
+    "extends_count": 0,
+    "graph_density": 0.0
+  },
+  "temporal_validity": {
+    "freshness": "FRESH",
+    "age_years": 0.0
+  },
+  "autobuilt": {
+    "built": false,
+    "verified": false,
+    "proof_sealed": false
+  },
+  "outcome": {
+    "status": "pattern_opportunity",
+    "feedback_score": null
+  },
+  "card_sha256": "ea7815ece3520fffef1139b289c9148fb1a6b3e745115e894e78ee131ecded01",
+  "artifact_sha256": ""
+}

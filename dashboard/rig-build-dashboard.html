@@ -1,0 +1,4330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RIG OmniScout — Build Card Intelligence Dashboard</title>
+  <style>:root {
+  --bg: #0b0c10;
+  --bg-2: #15161a;
+  --bg-3: #1f2128;
+  --fg: #e0e0e0;
+  --fg-dim: #9ca3af;
+  --accent: #22d3ee;
+  --accent-2: #818cf8;
+  --green: #22c55e;
+  --yellow: #eab308;
+  --red: #ef4444;
+  --gray: #6b7280;
+  --border: #2a2d35;
+  --shadow: rgba(0,0,0,0.35);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  line-height: 1.45;
+}
+.container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+header {
+  background: linear-gradient(135deg, var(--bg-2), var(--bg-3));
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 28px 32px;
+  margin-bottom: 24px;
+  box-shadow: 0 8px 24px var(--shadow);
+}
+header h1 { margin: 0 0 8px; font-size: 1.75rem; letter-spacing: -0.02em; }
+header .subtitle { color: var(--fg-dim); font-size: 0.95rem; }
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+  margin-top: 22px;
+}
+.kpi {
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  text-align: center;
+}
+.kpi .value { font-size: 1.6rem; font-weight: 700; color: var(--accent); }
+.kpi .label { font-size: 0.75rem; color: var(--fg-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 4px; }
+section {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px 26px;
+  margin-bottom: 22px;
+  box-shadow: 0 4px 16px var(--shadow);
+}
+section h2 { margin: 0 0 18px; font-size: 1.15rem; color: var(--accent); }
+section h3 { margin: 0 0 12px; font-size: 0.95rem; color: var(--fg); }
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 22px; }
+table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+th, td { padding: 10px 12px; border-bottom: 1px solid var(--border); text-align: left; }
+th { color: var(--fg-dim); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; background: var(--bg-3); }
+tr:hover td { background: rgba(255,255,255,0.03); }
+.sortable { cursor: pointer; user-select: none; }
+.sortable:hover { color: var(--accent); }
+.pill {
+  display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 0.72rem;
+  font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em;
+}
+.pill-green { background: rgba(34,197,94,0.14); color: var(--green); border: 1px solid rgba(34,197,94,0.35); }
+.pill-yellow { background: rgba(234,179,8,0.14); color: var(--yellow); border: 1px solid rgba(234,179,8,0.35); }
+.pill-red { background: rgba(239,68,68,0.14); color: var(--red); border: 1px solid rgba(239,68,68,0.35); }
+.pill-gray { background: rgba(107,114,128,0.14); color: var(--gray); border: 1px solid rgba(107,114,128,0.35); }
+.row-green td { border-left: 3px solid var(--green); }
+.row-yellow td { border-left: 3px solid var(--yellow); }
+.row-red td { border-left: 3px solid var(--red); }
+.row-gray td { border-left: 3px solid var(--gray); }
+.bar-chart { display: flex; flex-direction: column; gap: 10px; }
+.bar-row { display: flex; align-items: center; gap: 12px; }
+.bar-label { width: 200px; font-size: 0.82rem; color: var(--fg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar-track { flex: 1; height: 22px; background: var(--bg-3); border-radius: 5px; overflow: hidden; position: relative; }
+.bar-fill { height: 100%; border-radius: 5px; transition: width 0.4s ease; }
+.bar-value { width: 44px; text-align: right; font-size: 0.8rem; font-weight: 700; color: var(--accent); }
+.bar-meta { font-size: 0.75rem; color: var(--fg-dim); margin-top: 2px; }
+.contra-row { margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+.contra-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.contra-title { font-size: 0.85rem; color: var(--fg); margin-bottom: 4px; }
+.contra-meta { font-size: 0.75rem; color: var(--fg-dim); }
+.drift-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+.drift-card { background: var(--bg-3); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+.drift-score { font-size: 1.3rem; font-weight: 700; color: var(--accent-2); }
+.drift-ents { font-size: 0.75rem; color: var(--fg-dim); margin-top: 6px; }
+.meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.meta-card { background: var(--bg-3); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+.meta-card h4 { margin: 0 0 8px; font-size: 0.9rem; color: var(--fg); }
+.meta-stat { font-size: 0.8rem; color: var(--fg-dim); }
+.status-row { display: flex; gap: 24px; flex-wrap: wrap; }
+.status-item { min-width: 180px; }
+.status-label { font-size: 0.72rem; color: var(--fg-dim); text-transform: uppercase; }
+.status-value { font-size: 1rem; color: var(--fg); margin-top: 3px; }
+footer { text-align: center; color: var(--fg-dim); font-size: 0.75rem; margin-top: 10px; padding-bottom: 30px; }
+.scroll-box { max-height: 520px; overflow: auto; border: 1px solid var(--border); border-radius: 8px; }
+.scroll-box table { margin: 0; min-width: 100%; }
+@media (max-width: 860px) {
+  .grid-2, .drift-grid, .meta-grid { grid-template-columns: 1fr; }
+  .bar-label { width: 140px; }
+}</style>
+</head>
+<body>
+  <div class="container">
+    
+<header>
+  <h1>RIG OmniScout — Build Card Intelligence Dashboard</h1>
+  <div class="subtitle">Generated 2026-08-06T14:56:30.468253+00:00</div>
+  <div class="kpi-row">
+    <div class="kpi"><div class="value">130</div><div class="label">Total Cards</div></div>
+    <div class="kpi"><div class="value">130</div><div class="label">Built</div></div>
+    <div class="kpi"><div class="value">89</div><div class="label">Proofs Sealed</div></div>
+    <div class="kpi"><div class="value">0</div><div class="label">Pending</div></div>
+  </div>
+</header>
+
+    
+<section>
+  <h2>Pattern Engine Scores</h2>
+  <div class="grid-2">
+    <div>
+      <h3>Anti-Crowd Scores — Empty Strategy Whitespace</h3>
+      <div class="bar-chart">
+      <div class="bar-row">
+        <div class="bar-label" title="vertical-dental-ortho">vertical-dental-ortho</div>
+        <div class="bar-track"><div class="bar-fill" style="width:93.2%; background:linear-gradient(90deg, #22c55e, #4ade80)"></div></div>
+        <div class="bar-value">93.2</div>
+      </div>
+      <div class="bar-meta">Investigate dental-ortho vertical proof card</div>
+
+      <div class="bar-row">
+        <div class="bar-label" title="legal-compliance">legal-compliance</div>
+        <div class="bar-track"><div class="bar-fill" style="width:89.6%; background:linear-gradient(90deg, #22c55e, #4ade80)"></div></div>
+        <div class="bar-value">89.6</div>
+      </div>
+      <div class="bar-meta">Investigate compliance-as-code candidate</div>
+
+      <div class="bar-row">
+        <div class="bar-label" title="vertical-pe-cfo">vertical-pe-cfo</div>
+        <div class="bar-track"><div class="bar-fill" style="width:86.0%; background:linear-gradient(90deg, #22c55e, #4ade80)"></div></div>
+        <div class="bar-value">86.0</div>
+      </div>
+      <div class="bar-meta">Investigate PE/CFO vertical proof card</div>
+
+      <div class="bar-row">
+        <div class="bar-label" title="scraping-intelligence">scraping-intelligence</div>
+        <div class="bar-track"><div class="bar-fill" style="width:78.2%; background:linear-gradient(90deg, #eab308, #facc15)"></div></div>
+        <div class="bar-value">78.2</div>
+      </div>
+      <div class="bar-meta">Open scraping-intelligence white-space card</div>
+
+      <div class="bar-row">
+        <div class="bar-label" title="automation-runtime">automation-runtime</div>
+        <div class="bar-track"><div class="bar-fill" style="width:74.0%; background:linear-gradient(90deg, #eab308, #facc15)"></div></div>
+        <div class="bar-value">74.0</div>
+      </div>
+      <div class="bar-meta">Produce first runtime-hardened build card</div>
+
+      <div class="bar-row">
+        <div class="bar-label" title="doctrine-control-plane">doctrine-control-plane</div>
+        <div class="bar-track"><div class="bar-fill" style="width:60.0%; background:linear-gradient(90deg, #eab308, #facc15)"></div></div>
+        <div class="bar-value">60.0</div>
+      </div>
+      <div class="bar-meta">Draft governance + operator-doctrine card</div>
+
+      <div class="bar-row">
+        <div class="bar-label" title="knowledge-memory">knowledge-memory</div>
+        <div class="bar-track"><div class="bar-fill" style="width:60.0%; background:linear-gradient(90deg, #eab308, #facc15)"></div></div>
+        <div class="bar-value">60.0</div>
+      </div>
+      <div class="bar-meta">Seed semantic-memory architecture card</div>
+</div>
+    </div>
+
+    <div>
+      <h3>Contradiction Arbitrage — Top 10</h3>
+      
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">resolved</span>
+          CAR 1.0 — negation overlap + same strategy, token_overlap=0.12
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">resolved</span>
+          CAR 1.0 — negation overlap + same strategy, token_overlap=0.12
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">active</span>
+          CAR 0.6 — negation overlap + same strategy, token_overlap=0.13
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">active</span>
+          CAR 0.6 — negation overlap + same strategy, token_overlap=0.14
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">active</span>
+          CAR 0.6 — negation overlap + same strategy, token_overlap=0.14
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">active</span>
+          CAR 0.6 — negation overlap + same strategy, token_overlap=0.14
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">active</span>
+          CAR 0.6 — negation overlap + same strategy, token_overlap=0.14
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">active</span>
+          CAR 0.6 — negation overlap + same strategy, token_overlap=0.21
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">active</span>
+          CAR 0.6 — negation overlap + same strategy, token_overlap=0.21
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">active</span>
+          CAR 0.5 — negation overlap + same strategy, token_overlap=0.12
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">active</span>
+          CAR 0.5 — negation overlap + same strategy, token_overlap=0.12
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">active</span>
+          CAR 0.5 — negation overlap + same strategy, token_overlap=0.14
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">active</span>
+          CAR 0.5 — negation overlap + same strategy, token_overlap=0.14
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">active</span>
+          CAR 0.5 — negation overlap + same strategy, token_overlap=0.21
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">active</span>
+          CAR 0.5 — negation overlap + same strategy, token_overlap=0.21
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">active</span>
+          CAR 0.5 — negation overlap + same strategy, token_overlap=0.12
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">active</span>
+          CAR 0.5 — negation overlap + same strategy, token_overlap=0.14
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">active</span>
+          CAR 0.5 — negation overlap + same strategy, token_overlap=0.14
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">active</span>
+          CAR 0.5 — negation overlap + same strategy, token_overlap=0.15
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">active</span>
+          CAR 0.5 — negation overlap + same strategy, token_overlap=0.15
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">active</span>
+          CAR 0.4 — negation overlap + same strategy, token_overlap=0.16
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">active</span>
+          CAR 0.4 — negation overlap + same strategy, token_overlap=0.16
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">active</span>
+          CAR 0.4 — negation overlap + same strategy, token_overlap=0.12
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">active</span>
+          CAR 0.4 — negation overlap + same strategy, token_overlap=0.12
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">active</span>
+          CAR 0.4 — negation overlap + same strategy, token_overlap=0.15
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">active</span>
+          CAR 0.4 — negation overlap + same strategy, token_overlap=0.15
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">active</span>
+          CAR 0.4 — negation overlap + same strategy, token_overlap=0.16
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">active</span>
+          CAR 0.4 — negation overlap + same strategy, token_overlap=0.16
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">active</span>
+          CAR 0.4 — negation overlap + same strategy, token_overlap=0.12
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.3 — negation overlap + same strategy, token_overlap=0.19
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.3 — negation overlap + same strategy, token_overlap=0.19
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.3 — negation overlap + same strategy, token_overlap=0.16
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.3 — negation overlap + same strategy, token_overlap=0.16
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.3 — negation overlap + same strategy, token_overlap=0.67
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.3 — negation overlap + same strategy, token_overlap=0.67
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.3 — negation overlap + same strategy, token_overlap=0.12
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.3 — negation overlap + same strategy, token_overlap=0.12
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.2 — negation overlap + same strategy, token_overlap=0.13
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.2 — negation overlap + same strategy, token_overlap=0.19
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.2 — negation overlap + same strategy, token_overlap=0.19
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.2 — negation overlap + same strategy, token_overlap=0.13
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.2 — negation overlap + same strategy, token_overlap=0.13
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.2 — negation overlap + same strategy, token_overlap=0.16
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.2 — negation overlap + same strategy, token_overlap=0.16
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.2 — negation overlap + same strategy, token_overlap=0.16
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.2 — negation overlap + same strategy, token_overlap=0.16
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.2 — negation overlap + same strategy, token_overlap=0.13
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.2 — negation overlap + same strategy, token_overlap=0.13
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.2 — negation overlap + same strategy, token_overlap=0.13
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.2 — negation overlap + same strategy, token_overlap=0.13
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.16
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.16
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.12
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.12
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.13
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.13
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.20
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.20
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.16
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.16
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.19
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.19
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.13
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.13
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.14
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.14
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.16
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.16
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.13
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.13
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.16
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.16
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.15
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.15
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.13
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.13
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.13
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.13
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.14
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.14
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.12
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.12
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.13
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.13
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.15
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.15
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.14
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.1 — negation overlap + same strategy, token_overlap=0.14
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.17
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.17
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.20
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.20
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.13
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.13
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.14
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.14
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.14
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.14
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.13
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.13
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.16
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.16
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.38
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.38
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.14
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.14
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.16
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.16
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.14
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.14
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.16
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.16
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.39
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.39
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.14
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.14
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.14
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.14
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.12
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.12
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.14
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.14
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.14
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.14
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.13
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.13
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.17
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.17
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.14
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.14
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.14
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.14
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.12
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.12
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.13
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.15
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.12
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.12
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.38
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.38
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.15
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.13
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.13
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.12
+        </div>
+      </div>
+
+      <div class="contra-row">
+        <div class="contra-title">— <span style="color:var(--fg-dim)">⇄</span> —</div>
+        <div class="contra-meta">
+          <span class="pill pill-gray">dormant</span>
+          CAR 0.0 — negation overlap + same strategy, token_overlap=0.13
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <h3 style="margin-top:22px">Epistemic Drift — Top 10 Strategies</h3>
+  <div class="drift-grid">
+      <div class="drift-card">
+        <div style="font-size:0.78rem;color:var(--fg-dim)">operations · 3 cards · avg 85.7</div>
+        <div class="drift-score">84.2</div>
+        <div class="drift-ents">Novel entities: case study, sustain, test, systematic review, team</div>
+      </div>
+
+      <div class="drift-card">
+        <div style="font-size:0.78rem;color:var(--fg-dim)">competitive-intel · 3 cards · avg 89.0</div>
+        <div class="drift-score">55.5</div>
+        <div class="drift-ents">Novel entities: —</div>
+      </div>
+
+      <div class="drift-card">
+        <div style="font-size:0.78rem;color:var(--fg-dim)">founder-performance · 6 cards · avg 85.7</div>
+        <div class="drift-score">37.5</div>
+        <div class="drift-ents">Novel entities: Meta, Meta-analysis, rag, session, decision</div>
+      </div>
+
+      <div class="drift-card">
+        <div style="font-size:0.78rem;color:var(--fg-dim)">gtm-sales · 5 cards · avg 89.8</div>
+        <div class="drift-score">36.4</div>
+        <div class="drift-ents">Novel entities: Claude, Google, Anthropic, test, 20%</div>
+      </div>
+
+      <div class="drift-card">
+        <div style="font-size:0.78rem;color:var(--fg-dim)">forecasting-calibration · 4 cards · avg 89.5</div>
+        <div class="drift-score">34.6</div>
+        <div class="drift-ents">Novel entities: agent, regression, energy, Calibration, meta</div>
+      </div>
+
+      <div class="drift-card">
+        <div style="font-size:0.78rem;color:var(--fg-dim)">customer-success-expansion · 6 cards · avg 88.0</div>
+        <div class="drift-score">34.5</div>
+        <div class="drift-ents">Novel entities: case-study, gate, regression, test, decision</div>
+      </div>
+
+      <div class="drift-card">
+        <div style="font-size:0.78rem;color:var(--fg-dim)">ai-business-models · 3 cards · avg 87.3</div>
+        <div class="drift-score">33.1</div>
+        <div class="drift-ents">Novel entities: post, rag, app, market</div>
+      </div>
+
+      <div class="drift-card">
+        <div style="font-size:0.78rem;color:var(--fg-dim)">pricing-finance · 6 cards · avg 90.8</div>
+        <div class="drift-score">30.1</div>
+        <div class="drift-ents">Novel entities: 4.1%, 3.8%, regression, forecast</div>
+      </div>
+
+      <div class="drift-card">
+        <div style="font-size:0.78rem;color:var(--fg-dim)">agent-engineering · 11 cards · avg 88.4</div>
+        <div class="drift-score">27.5</div>
+        <div class="drift-ents">Novel entities: node, experiment, causal, n8n, transcript</div>
+      </div>
+
+      <div class="drift-card">
+        <div style="font-size:0.78rem;color:var(--fg-dim)">marketing-content-linkedin · 3 cards · avg 85.7</div>
+        <div class="drift-score">27.2</div>
+        <div class="drift-ents">Novel entities: regression, determin</div>
+      </div>
+</div>
+</section>
+
+    
+<section>
+  <h2>Build Card Portfolio</h2>
+  <div class="scroll-box">
+    <table id="portfolio-table" data-sort-col="" data-sort-dir="">
+      <thead>
+        <tr>
+          <th>Card ID</th>
+          <th>Title</th>
+          <th class="sortable" onclick="sortTable('portfolio-table',2,'str')">Strategy ▾</th>
+          <th class="sortable" onclick="sortTable('portfolio-table',3,'str')">Tier ▾</th>
+          <th class="sortable" onclick="sortTable('portfolio-table',4,'num')">Score ▾</th>
+          <th>Build Status</th>
+          <th>Proof Sealed</th>
+          <th>Council Verdict</th>
+          <th>Revenue Model</th>
+        </tr>
+      </thead>
+      <tbody>
+      <tr class="row-green">
+        <td>l2-0437f3e9a18b3f67</td>
+        <td>Lean principles, learning, and knowledge work: Evidence from a softwar</td>
+        <td>operations</td>
+        <td data-sort="T2">T2</td>
+        <td data-sort="87.0">87</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-06600c98d95caec8</td>
+        <td>A Meta-analysis of Mindfulness-Based Interventions in Adults with Atte</td>
+        <td>founder-performance</td>
+        <td data-sort="T2">T2</td>
+        <td data-sort="78.0">78</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-0705e93370480e90</td>
+        <td>Cloud Computing /Deep Learning Customer Churn Prediction for SaaS Plat</td>
+        <td>customer-success-expansion</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-0bc272a731894430</td>
+        <td>AI Agent Workflow Automation: Multi-Source Build Card</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="85.0">85</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-1252013375c83909</td>
+        <td>omniscout-100</td>
+        <td>forecasting-calibration</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="83.0">83</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-128d55dd7ed5208b</td>
+        <td>omniscout-88</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="87.0">87</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-1360b9a12e8033e2</td>
+        <td>Verify-Gated Completion as Admission Control in Governed Multi-Agent R</td>
+        <td>proof-false-done</td>
+        <td data-sort="T0">T0</td>
+        <td data-sort="87.0">87</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Verification SaaS + audit licensing</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-169c3dc240141365</td>
+        <td>Nova-AgentKVShift-Wiki Integration for Persistent Agentic Workflows</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="85.0">85</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-174fa1631064e286</td>
+        <td>omniscout-182</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="85.0">85</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-19a0a94f3f1da08c</td>
+        <td>AI Agent Tutorial Workflow: From No-Code Platforms to Structured Promp</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="94.0">94</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-1ca0257c513fc38a</td>
+        <td>Digital content marketing on social media along the B2B customer journ</td>
+        <td>marketing-content-linkedin</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="87.0">87</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-1e7b3af2de61ff39</td>
+        <td>Healthcare AI Operations: Multi-Source Build Card for Clinical Workflo</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="85.0">85</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-24d9014b99d66dff</td>
+        <td>OmniScout-153: Specification-Grounded Agentic Verification with Cross-</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="85.0">85</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-254d3a2ae759c5fc</td>
+        <td>Alternatives for testing of context-aware software systems in non-acad</td>
+        <td>proof-false-done</td>
+        <td data-sort="T0">T0</td>
+        <td data-sort="87.0">87</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Verification SaaS + audit licensing</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-25b5998f981e3af7</td>
+        <td>OmniScout-64: Multi-Agent AI Architecture for Secure Workflow Automati</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="85.0">85</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-2d0d210ef16f94a7</td>
+        <td>Monotonic Risk Evaluation for Multi-Agent AI Systems</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="96.0">96</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-2dce75dfbb54d241</td>
+        <td>AI Agents and Workflow Automation</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="90.0">90</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-2e9df0ce49f461e9</td>
+        <td>omniscout-81</td>
+        <td>gtm-sales</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="96.0">96</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>GTM automation retainer + pipeline rev-share</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-310203a24facf6a1</td>
+        <td>EXPRESS: Customer Acquisition Through Intermediaries (vs. Brand) Shape</td>
+        <td>pricing-finance</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-31f6b685ed33fd19</td>
+        <td>omniscout-83</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-36ca95bc2730ecd1</td>
+        <td>Nova-AgentKVShift-Wiki Integration for Autonomous AI Workflows</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="85.0">85</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-38127d9f85666c17</td>
+        <td>OmniScout-64: Multi-Agent Workflow Automation with Secure Cross-Modal </td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="87.0">87</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-393d1ab6f1d83dc9</td>
+        <td>Student Accountability in Team-based Learning Classes</td>
+        <td>leadership-org</td>
+        <td data-sort="T2">T2</td>
+        <td data-sort="87.0">87</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-3d5dd69bde87e105</td>
+        <td>OmniScout-158: Multi-source BUILD CARD for AI Agent Workflow Automatio</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-40510b211793548d</td>
+        <td>An Empirical Analysis of Microservices Systems Using Consumer-Driven C</td>
+        <td>determinism-gates</td>
+        <td data-sort="T0">T0</td>
+        <td data-sort="83.0">83</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>CI/verification tooling + enterprise licensing</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-426285048ace7196</td>
+        <td>Effectiveness of the Cognitive-Functional Intervention for Adults (Cog</td>
+        <td>founder-performance</td>
+        <td data-sort="T2">T2</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-43a48363baea9d97</td>
+        <td>MRegTest: A Replay-Based Regression Testing Tool for Distributed UML-R</td>
+        <td>determinism-gates</td>
+        <td data-sort="T0">T0</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>CI/verification tooling + enterprise licensing</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-43df6c42b579cd80</td>
+        <td>Calibrated Probabilistic Forecasts for Arbitrary Sequences</td>
+        <td>forecasting-calibration</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="83.0">83</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-447c47901d1aa0e2</td>
+        <td>Strategic Decision-Making Under Uncertainty Through Bilevel Game Theor</td>
+        <td>strategy-decision-routing</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="82.0">82</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-44db123090594930</td>
+        <td>OmniScout-122: AI Agent Workflow Automation via Schema-Grounded Event-</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-464a4a0b3404b7d5</td>
+        <td>omniscout-141</td>
+        <td>agent-engineering</td>
+        <td data-sort="T0">T0</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Fractional CAIO + agent build retainer</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-46e0ececa96196c0</td>
+        <td>Tail Calibration of Probabilistic Forecasts</td>
+        <td>forecasting-calibration</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-48eab48b93cf1944</td>
+        <td>AI Agent Workflow Automation via Hard Decision Layer Integration</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="98.0">98</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-4be85bfadba6c06c</td>
+        <td>Impact of pricing schemes on a market for Software-as-a-Service and pe</td>
+        <td>pricing-finance</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="78.0">78</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-4c251ac82748895a</td>
+        <td>Local LLM Inference on Apple Silicon Using MLX Framework</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-4d75008ef590c5da</td>
+        <td>omniscout-126</td>
+        <td>agent-engineering</td>
+        <td data-sort="T0">T0</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Fractional CAIO + agent build retainer</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-4ea3502d88b63b71</td>
+        <td>B2B content marketing for professional services: In-person versus digi</td>
+        <td>marketing-content-linkedin</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="78.0">78</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-50a1e9d96097d541</td>
+        <td>Recursive Agent Harnesses</td>
+        <td>agent-engineering</td>
+        <td data-sort="T0">T0</td>
+        <td data-sort="87.0">87</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Fractional CAIO + agent build retainer</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-5254dc78c252c1c1</td>
+        <td>AI Agent Tutorial Workflow: From No-Code Builders to Structured Prompt</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="85.0">85</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-54f7324f5bf32b02</td>
+        <td>A Survey on Large Language Model (LLM) Security and Privacy: The Good,</td>
+        <td>cybersecurity</td>
+        <td data-sort="T2">T2</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-5558e2046d9684ca</td>
+        <td>Obsidian AI Second Brain Build Card</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="85.0">85</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-55f5e2197639cd23</td>
+        <td>Pricing Strategies of Software Vendors</td>
+        <td>pricing-finance</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="96.0">96</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-567d5fefc8eb3e42</td>
+        <td>SLM-Fusion: A Unified Framework for Model Merging, Routing, and Multi-</td>
+        <td>local-inference-fleet</td>
+        <td data-sort="T0">T0</td>
+        <td data-sort="83.0">83</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Fleet management platform + consulting</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-56bfc3a324cc0b22</td>
+        <td>Competitive intelligence process and tools for intelligence analysis</td>
+        <td>competitive-intel</td>
+        <td data-sort="T2">T2</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-578c969fe6091270</td>
+        <td>EdgeShard: Efficient LLM Inference via Collaborative Edge Computing</td>
+        <td>local-inference-fleet</td>
+        <td data-sort="T0">T0</td>
+        <td data-sort="96.0">96</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Fleet management platform + consulting</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-57b1f4e4ea884896</td>
+        <td>Competitive intelligence practices in Japanese companies: multicase st</td>
+        <td>competitive-intel</td>
+        <td data-sort="T2">T2</td>
+        <td data-sort="83.0">83</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-5944d8e9bfb4aed3</td>
+        <td>Adaptive Memory Admission Control for LLM Agents</td>
+        <td>proof-false-done</td>
+        <td data-sort="T0">T0</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Verification SaaS + audit licensing</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-5c4d1f07fb85b434</td>
+        <td>Reengineering professional services through automation, remote outsour</td>
+        <td>vertical-law-cpa</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="78.0">78</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-5cfd151877df4c93</td>
+        <td>A competitive intelligence acquisition framework for mining user perce</td>
+        <td>competitive-intel</td>
+        <td data-sort="T2">T2</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-5d9f66374daded0c</td>
+        <td>omniscout-179</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="96.0">96</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-5f9f3f25a05b07c2</td>
+        <td>Beyond Customer Lifetime Valuation: Measuring the Value of Acquisition</td>
+        <td>pricing-finance</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="96.0">96</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-606dbf1ba6374b11</td>
+        <td>Governed Evolution of Agent Runtimes through Executable Operational Co</td>
+        <td>agent-engineering</td>
+        <td data-sort="T0">T0</td>
+        <td data-sort="78.0">78</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Fractional CAIO + agent build retainer</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-60f81dcc93bd0799</td>
+        <td>Accounting for strategic investment decision-making under extreme unce</td>
+        <td>strategy-decision-routing</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="78.0">78</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-62f9567c3a4b1726</td>
+        <td>Large Language Models for Cyber Security: A Systematic Literature Revi</td>
+        <td>cybersecurity</td>
+        <td data-sort="T2">T2</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-651be4c55ae6e352</td>
+        <td>omniscout-108</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="85.0">85</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-658ca6d917334886</td>
+        <td>omniscout-105</td>
+        <td>strategy-decision-routing</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="87.0">87</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-682c3daee1d453ff</td>
+        <td>On the Use of Customer Lifetime Value As a Limit on Acquisition Spendi</td>
+        <td>pricing-finance</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="87.0">87</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-70e03a932ad932cc</td>
+        <td>Customer Churn Prediction in the Software by Subscription models IT bu</td>
+        <td>customer-success-expansion</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="78.0">78</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-713cbe5a4afef64d</td>
+        <td>Cohort Revenue&amp;Retention Analysis: A Bayesian Approach</td>
+        <td>customer-success-expansion</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="87.0">87</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-7218aeb20777fd48</td>
+        <td>Who Grants the Agent Power? Defending Against Instruction Injection vi</td>
+        <td>proof-false-done</td>
+        <td data-sort="T0">T0</td>
+        <td data-sort="87.0">87</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Verification SaaS + audit licensing</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-7292900fc218300a</td>
+        <td>High-performance work practices and labour productivity: a six wave lo</td>
+        <td>founder-performance</td>
+        <td data-sort="T2">T2</td>
+        <td data-sort="78.0">78</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-74aac392229baa6a</td>
+        <td>omniscout-175</td>
+        <td>healthcare-ai-ops</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="87.0">87</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Healthcare AI ops retainer + RCM rev-share</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-7557845c488a16d3</td>
+        <td>RouterBench: A Benchmark for Multi-LLM Routing System</td>
+        <td>local-inference-fleet</td>
+        <td data-sort="T0">T0</td>
+        <td data-sort="96.0">96</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Fleet management platform + consulting</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-76bae16c327b296d</td>
+        <td>Efficient regression testing of distributed real-time reactive systems</td>
+        <td>determinism-gates</td>
+        <td data-sort="T0">T0</td>
+        <td data-sort="87.0">87</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>CI/verification tooling + enterprise licensing</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-839dce96133c3e69</td>
+        <td>omniscout-73</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="96.0">96</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-872ac783be6456b2</td>
+        <td>Agent-as-a-Judge: Evaluate Agents with Agents</td>
+        <td>agent-engineering</td>
+        <td data-sort="T0">T0</td>
+        <td data-sort="96.0">96</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Fractional CAIO + agent build retainer</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-895063c9252de7e2</td>
+        <td>AI Agents and Workflow Automation</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="94.0">94</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-8a0916c99473fde7</td>
+        <td>omniscout-100</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="100.0">100</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-8d2ddd27b42db30f</td>
+        <td>omniscout-179</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-8f6691767b4906d2</td>
+        <td>Determinants of e-repurchase intentions: An integrative model of quadr</td>
+        <td>customer-success-expansion</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="87.0">87</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-9042356a0ce12592</td>
+        <td>OmniScout-150: Multi-source AI Agent Workflow Automation Build Card</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-921931f1b3102695</td>
+        <td>OmniScout-163: Multi-source Web Scraping Infrastructure</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="90.0">90</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-9227ac0a9d7aa85a</td>
+        <td>A Study on Content Marketing Strategies for B2B Companies at Newmak Te</td>
+        <td>marketing-content-linkedin</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-93b1fed8e84b10b2</td>
+        <td>omniscout-212</td>
+        <td>agent-engineering</td>
+        <td data-sort="T0">T0</td>
+        <td data-sort="87.0">87</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Fractional CAIO + agent build retainer</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-99e2274cbbdddc78</td>
+        <td>omniscout-94</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="90.0">90</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-9c20613346ff838f</td>
+        <td>Edge-LLM Inference With Cost-Aware Layer Allocation and Adaptive Sched</td>
+        <td>local-inference-fleet</td>
+        <td data-sort="T0">T0</td>
+        <td data-sort="100.0">100</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Fleet management platform + consulting</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-9f8bfd145bf3e378</td>
+        <td>The relevance of Customer Retention to Organizational Growth</td>
+        <td>customer-success-expansion</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-a16d62cf24f90a38</td>
+        <td>omniscout-135</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-a1a99a849a3c2e58</td>
+        <td>Role of Lean Tools in Supporting Knowledge Creation and Performance in</td>
+        <td>operations</td>
+        <td data-sort="T2">T2</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-a221783d5d03ed90</td>
+        <td>DecodeShare-Driven Workflow Automation via Agent Orchestration</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-a39139b6c014dc64</td>
+        <td>Scraping-Resistant Data Pipelines for AI Agent Sandboxing</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="85.0">85</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-a73965b99d6188c3</td>
+        <td>Towards the Combination of Model Checking and Runtime Verification on </td>
+        <td>proof-false-done</td>
+        <td data-sort="T0">T0</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Verification SaaS + audit licensing</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-a74bf838c7b075f7</td>
+        <td>An Adaptive Pricing Framework for Real-Time AI Model Service Exchange</td>
+        <td>ai-business-models</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-a81c413ec4a9a211</td>
+        <td>Environmental uncertainty, foresight and strategic decision making: an</td>
+        <td>strategy-decision-routing</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="87.0">87</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-a93277222130fbaf</td>
+        <td>Reproducible Testing of Concurrent and Distributed</td>
+        <td>determinism-gates</td>
+        <td data-sort="T0">T0</td>
+        <td data-sort="83.0">83</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>CI/verification tooling + enterprise licensing</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-aa0ea5f02bf3d93f</td>
+        <td>omniscout-184</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="96.0">96</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-ac008a74f973a28a</td>
+        <td>omniscout-98</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="85.0">85</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-ac628b5c1e7a41e2</td>
+        <td>We Hold Ourselves Accountable: A Relational View of Team Accountabilit</td>
+        <td>leadership-org</td>
+        <td data-sort="T2">T2</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-b0523780333a9ca3</td>
+        <td>omniscout-113</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-b37ac3a674f74af3</td>
+        <td>DecodeShare-Driven Workflow Automation via Kernel Forge Agents</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="87.0">87</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-b509f3a12f5acb32</td>
+        <td>The effectiveness of workplace nutrition and physical activity interve</td>
+        <td>founder-performance</td>
+        <td data-sort="T2">T2</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-b989430aa4014474</td>
+        <td>omniscout-160</td>
+        <td>local-inference-fleet</td>
+        <td data-sort="T0">T0</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Fleet management platform + consulting</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-ba103a0d929bb884</td>
+        <td>El Deep Work y su incidencia en la productividad de las empresas</td>
+        <td>founder-performance</td>
+        <td data-sort="T2">T2</td>
+        <td data-sort="87.0">87</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-bb0efc49084c9d12</td>
+        <td>Contract Testing in Microservices-Based Systems: A Survey</td>
+        <td>determinism-gates</td>
+        <td data-sort="T0">T0</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>CI/verification tooling + enterprise licensing</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-bd072e1751a1726f</td>
+        <td>PACT: A Contract-Theoretic Framework for Pricing Agentic AI Services P</td>
+        <td>ai-business-models</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-bd8a39fd694f7e67</td>
+        <td>Personalization in Email Marketing: The Role of Noninformative Adverti</td>
+        <td>gtm-sales</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="96.0">96</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>GTM automation retainer + pipeline rev-share</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-c0705a2c02b82624</td>
+        <td>omniscout-82</td>
+        <td>strategy-decision-routing</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="78.0">78</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-c1efeec5fb0ee355</td>
+        <td>The Effectiveness and Approaches of Executive Function Interventions i</td>
+        <td>founder-performance</td>
+        <td data-sort="T2">T2</td>
+        <td data-sort="87.0">87</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-c277784ec2a705e7</td>
+        <td>Code as Agent Harness</td>
+        <td>agent-engineering</td>
+        <td data-sort="T0">T0</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Fractional CAIO + agent build retainer</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-c33a2d646e38c626</td>
+        <td>Cross-Team Design System Adoption: Organizational Strategies for Scali</td>
+        <td>product-design</td>
+        <td data-sort="T2">T2</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-cb0dee3560f99ce5</td>
+        <td>omniscout-117</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-cb877042b1083648</td>
+        <td>Triggering the Personalization Backfire Effect: The Moderating Role of</td>
+        <td>gtm-sales</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="96.0">96</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>GTM automation retainer + pipeline rev-share</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-cbbc524a4a96f8fe</td>
+        <td>Enhancing Work Productivity through Generative Artificial Intelligence</td>
+        <td>vertical-law-cpa</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="87.0">87</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-cef0a592c364aef6</td>
+        <td>omniscout-181</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-cfd9a6b87301d715</td>
+        <td>Advertising Effectiveness : The Interplay of What , When , and Where</td>
+        <td>gtm-sales</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="83.0">83</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>GTM automation retainer + pipeline rev-share</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-d0a6ff92c56adfc9</td>
+        <td>VeRO: A Harness for Agents to Optimize Agents</td>
+        <td>agent-engineering</td>
+        <td data-sort="T0">T0</td>
+        <td data-sort="78.0">78</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Fractional CAIO + agent build retainer</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-d32c16d547bb990b</td>
+        <td>Skills as Verifiable Artifacts: A Trust Schema and a Biconditional Cor</td>
+        <td>proof-false-done</td>
+        <td data-sort="T0">T0</td>
+        <td data-sort="78.0">78</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Verification SaaS + audit licensing</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-d516e553af936174</td>
+        <td>Skills as Verifiable Artifacts: A Trust Schema and a Biconditional Cor</td>
+        <td>proof-false-done</td>
+        <td data-sort="T0">T0</td>
+        <td data-sort="87.0">87</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Verification SaaS + audit licensing</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-d52b0e5585260006</td>
+        <td>Agentic Harness Engineering: Observability-Driven Automatic Evolution </td>
+        <td>agent-engineering</td>
+        <td data-sort="T0">T0</td>
+        <td data-sort="96.0">96</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Fractional CAIO + agent build retainer</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-dbc70f19f2fa6d68</td>
+        <td>Verify-Gated Completion as Admission Control in Governed Multi-Agent R</td>
+        <td>proof-false-done</td>
+        <td data-sort="T0">T0</td>
+        <td data-sort="87.0">87</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Verification SaaS + audit licensing</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-dde2b6a213404bb9</td>
+        <td>Facilitators and inhibitors of Lean Service 5.0: an assessment from th</td>
+        <td>operations</td>
+        <td data-sort="T2">T2</td>
+        <td data-sort="78.0">78</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-e143a1186abad4b8</td>
+        <td>Control at Work: An Integrative, Lifespan-Informed Review</td>
+        <td>leadership-org</td>
+        <td data-sort="T2">T2</td>
+        <td data-sort="87.0">87</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-e22b23c496299959</td>
+        <td>A Platform Service Supply Chain: Interaction Between AI Strategy Adopt</td>
+        <td>ai-business-models</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="78.0">78</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-e3b71cea266501c5</td>
+        <td>omniscout-107</td>
+        <td>gtm-sales</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="78.0">78</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>GTM automation retainer + pipeline rev-share</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-e5263544aaaed2d2</td>
+        <td>AI Agent Workflow Automation: Multi-Source Build Card</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="85.0">85</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-e8a9ed60a3e77c1a</td>
+        <td>Obsidian AI Second Brain with OpenClaw Agent Orchestration</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="87.0">87</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-e8d25ed33e600100</td>
+        <td>Local LLM Inference on Apple Silicon Using MLX Framework</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="85.0">85</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-e9c9d4f596f5b616</td>
+        <td>How information technology automates and augments processes: Insights </td>
+        <td>vertical-law-cpa</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="87.0">87</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-ecb56c855ad14715</td>
+        <td>A novel methodological approach to SaaS churn prediction using whale o</td>
+        <td>customer-success-expansion</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-ed0a5a8618b69f0a</td>
+        <td>Ensuring Syntactic Interoperability Using Consumer‐Driven Contract Tes</td>
+        <td>determinism-gates</td>
+        <td data-sort="T0">T0</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>CI/verification tooling + enterprise licensing</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-ed2a08e72fa34402</td>
+        <td>Optimal Upgrading Strategy for the Quality, Release Time, and Pricing </td>
+        <td>pricing-finance</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="96.0">96</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-f1d25569538aba6b</td>
+        <td>Dynamic Model Routing and Cascading for Efficient LLM Inference: A Sur</td>
+        <td>local-inference-fleet</td>
+        <td data-sort="T0">T0</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Fleet management platform + consulting</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-f2c18ffd845fbd80</td>
+        <td>omniscout-156</td>
+        <td>agent-engineering</td>
+        <td data-sort="T0">T0</td>
+        <td data-sort="87.0">87</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Fractional CAIO + agent build retainer</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-f32336cf076cc89f</td>
+        <td>Robust recalibration of aggregate probability forecasts using meta-bel</td>
+        <td>forecasting-calibration</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="100.0">100</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-f442dffc40d7b1ce</td>
+        <td>omniscout-179</td>
+        <td>healthcare-ai-ops</td>
+        <td data-sort="T1">T1</td>
+        <td data-sort="78.0">78</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Healthcare AI ops retainer + RCM rev-share</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-f54605647db632f0</td>
+        <td>Improving Design System Adoption with Inner Source</td>
+        <td>product-design</td>
+        <td data-sort="T2">T2</td>
+        <td data-sort="87.0">87</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-f8f8eb8cb8df0ae5</td>
+        <td>Adaptive Memory Admission Control for LLM Agents</td>
+        <td>proof-false-done</td>
+        <td data-sort="T0">T0</td>
+        <td data-sort="78.0">78</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Verification SaaS + audit licensing</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-fb7ec3a6025b5468</td>
+        <td>Healthcare AI Clinical Operations Multi-Source Build Card</td>
+        <td>unknown</td>
+        <td data-sort="—">—</td>
+        <td data-sort="85.0">85</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>No</td>
+        <td>SHIP</td>
+        <td>Consulting + custom build</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-fbd554042c0e4eff</td>
+        <td>Integrating High-Dimensional Functions Deterministically</td>
+        <td>determinism-gates</td>
+        <td data-sort="T0">T0</td>
+        <td data-sort="92.0">92</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>CI/verification tooling + enterprise licensing</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-fefefd4bed6de160</td>
+        <td>omniscout-139</td>
+        <td>agent-engineering</td>
+        <td data-sort="T0">T0</td>
+        <td data-sort="87.0">87</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>Yes</td>
+        <td>SHIP</td>
+        <td>Fractional CAIO + agent build retainer</td>
+      </tr>
+</tbody>
+    </table>
+  </div>
+</section>
+
+    
+<section>
+  <h2>Meta-Cards — Product Candidates (9 clusters)</h2>
+  <div class="meta-grid">
+      <div class="meta-card">
+        <h4>Meta-Synthesis: agent-engineering</h4>
+        <div class="meta-stat">
+          <strong>11</strong> cards ·
+          avg score <strong>88.4</strong> ·
+          combined revenue <strong>$296.8M</strong>
+        </div>
+        <div class="meta-stat" style="margin-top:4px;color:var(--fg-dim)">Fractional CAIO + agent build retainer ($8K-25K/mo)</div>
+        <div class="meta-stat" style="margin-top:6px;font-size:0.75rem">Strategy &#x27;agent-engineering&#x27; aggregates 11 build cards with average score 88.36 (9 STRONG/EXCELLENT, 11 promoted). Primary monetization: Fra</div>
+      </div>
+
+      <div class="meta-card">
+        <h4>Meta-Synthesis: proof-false-done</h4>
+        <div class="meta-stat">
+          <strong>9</strong> cards ·
+          avg score <strong>86.1</strong> ·
+          combined revenue <strong>$192.8M</strong>
+        </div>
+        <div class="meta-stat" style="margin-top:4px;color:var(--fg-dim)">Verification SaaS + audit licensing ($500-5K/mo)</div>
+        <div class="meta-stat" style="margin-top:6px;font-size:0.75rem">Strategy &#x27;proof-false-done&#x27; aggregates 9 build cards with average score 86.11 (7 STRONG/EXCELLENT, 9 promoted). Primary monetization: Verifi</div>
+      </div>
+
+      <div class="meta-card">
+        <h4>Meta-Synthesis: determinism-gates</h4>
+        <div class="meta-stat">
+          <strong>7</strong> cards ·
+          avg score <strong>88.7</strong> ·
+          combined revenue <strong>$150.8M</strong>
+        </div>
+        <div class="meta-stat" style="margin-top:4px;color:var(--fg-dim)">CI/verification tooling + enterprise licensing ($500-3K/mo)</div>
+        <div class="meta-stat" style="margin-top:6px;font-size:0.75rem">Strategy &#x27;determinism-gates&#x27; aggregates 7 build cards with average score 88.71 (5 STRONG/EXCELLENT, 7 promoted). Primary monetization: CI/ve</div>
+      </div>
+
+      <div class="meta-card">
+        <h4>Meta-Synthesis: gtm-sales</h4>
+        <div class="meta-stat">
+          <strong>5</strong> cards ·
+          avg score <strong>89.8</strong> ·
+          combined revenue <strong>$144.5M</strong>
+        </div>
+        <div class="meta-stat" style="margin-top:4px;color:var(--fg-dim)">GTM automation retainer + pipeline rev-share ($10K-30K/mo)</div>
+        <div class="meta-stat" style="margin-top:6px;font-size:0.75rem">Strategy &#x27;gtm-sales&#x27; aggregates 5 build cards with average score 89.8 (3 STRONG/EXCELLENT, 5 promoted). Primary monetization: GTM automation</div>
+      </div>
+
+      <div class="meta-card">
+        <h4>Meta-Synthesis: local-inference-fleet</h4>
+        <div class="meta-stat">
+          <strong>6</strong> cards ·
+          avg score <strong>93.2</strong> ·
+          combined revenue <strong>$129.8M</strong>
+        </div>
+        <div class="meta-stat" style="margin-top:4px;color:var(--fg-dim)">Fleet management platform + consulting ($2K-15K/mo)</div>
+        <div class="meta-stat" style="margin-top:6px;font-size:0.75rem">Strategy &#x27;local-inference-fleet&#x27; aggregates 6 build cards with average score 93.17 (5 STRONG/EXCELLENT, 6 promoted). Primary monetization: F</div>
+      </div>
+
+      <div class="meta-card">
+        <h4>Meta-Synthesis: customer-success-expansion</h4>
+        <div class="meta-stat">
+          <strong>6</strong> cards ·
+          avg score <strong>88.0</strong> ·
+          combined revenue <strong>$126.0M</strong>
+        </div>
+        <div class="meta-stat" style="margin-top:4px;color:var(--fg-dim)">Consulting + custom build ($5K-20K/mo)</div>
+        <div class="meta-stat" style="margin-top:6px;font-size:0.75rem">Strategy &#x27;customer-success-expansion&#x27; aggregates 6 build cards with average score 88.0 (5 STRONG/EXCELLENT, 6 promoted). Primary monetizatio</div>
+      </div>
+
+      <div class="meta-card">
+        <h4>Meta-Synthesis: founder-performance</h4>
+        <div class="meta-stat">
+          <strong>6</strong> cards ·
+          avg score <strong>85.7</strong> ·
+          combined revenue <strong>$126.0M</strong>
+        </div>
+        <div class="meta-stat" style="margin-top:4px;color:var(--fg-dim)">Consulting + custom build ($5K-20K/mo)</div>
+        <div class="meta-stat" style="margin-top:6px;font-size:0.75rem">Strategy &#x27;founder-performance&#x27; aggregates 6 build cards with average score 85.67 (4 STRONG/EXCELLENT, 6 promoted). Primary monetization: Con</div>
+      </div>
+
+      <div class="meta-card">
+        <h4>Meta-Synthesis: pricing-finance</h4>
+        <div class="meta-stat">
+          <strong>6</strong> cards ·
+          avg score <strong>90.8</strong> ·
+          combined revenue <strong>$126.0M</strong>
+        </div>
+        <div class="meta-stat" style="margin-top:4px;color:var(--fg-dim)">Consulting + custom build ($5K-20K/mo)</div>
+        <div class="meta-stat" style="margin-top:6px;font-size:0.75rem">Strategy &#x27;pricing-finance&#x27; aggregates 6 build cards with average score 90.83 (5 STRONG/EXCELLENT, 6 promoted). Primary monetization: Consult</div>
+      </div>
+
+      <div class="meta-card">
+        <h4>Meta-Synthesis: strategy-decision-routing</h4>
+        <div class="meta-stat">
+          <strong>5</strong> cards ·
+          avg score <strong>82.4</strong> ·
+          combined revenue <strong>$105.0M</strong>
+        </div>
+        <div class="meta-stat" style="margin-top:4px;color:var(--fg-dim)">Consulting + custom build ($5K-20K/mo)</div>
+        <div class="meta-stat" style="margin-top:6px;font-size:0.75rem">Strategy &#x27;strategy-decision-routing&#x27; aggregates 5 build cards with average score 82.4 (2 STRONG/EXCELLENT, 5 promoted). Primary monetization</div>
+      </div>
+</div>
+</section>
+
+    
+<section>
+  <h2>Nightly Status</h2>
+  <div class="status-row">
+    <div class="status-item"><div class="status-label">Last Run Started</div><div class="status-value">2026-08-06T03:59:33.702901+00:00</div></div>
+    <div class="status-item"><div class="status-label">Last Run Finished</div><div class="status-value">2026-08-06T04:00:07.123530+00:00</div></div>
+    <div class="status-item"><div class="status-label">Elapsed</div><div class="status-value">33.4s</div></div>
+    <div class="status-item"><div class="status-label">Cards Produced</div><div class="status-value">0 / 100</div></div>
+    <div class="status-item"><div class="status-label">Enriched</div><div class="status-value">130 v1 · 130 v3 · 130 v10</div></div>
+    <div class="status-item"><div class="status-label">Exported</div><div class="status-value">130 to Obsidian</div></div>
+    <div class="status-item"><div class="status-label">Disk</div><div class="status-value">622.1 GiB free (66.5% used)</div></div>
+    <div class="status-item"><div class="status-label">Next Scheduled Run</div><div class="status-value">2026-08-07 04:00 UTC</div></div>
+  </div>
+</section>
+
+    
+<section>
+  <h2>256GB Build Results (130 builds)</h2>
+  <div class="scroll-box">
+    <table>
+      <thead>
+        <tr>
+          <th>Card ID</th>
+          <th>Title</th>
+          <th>Strategy</th>
+          <th>Status</th>
+          <th>Model</th>
+          <th>Elapsed</th>
+        </tr>
+      </thead>
+      <tbody>
+      <tr class="row-green">
+        <td>l2-fefefd4bed6de160</td>
+        <td>omniscout-139</td>
+        <td>agent-engineering</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>674.0s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-fbd554042c0e4eff</td>
+        <td>Integrating High-Dimensional Functions Deterministically</td>
+        <td>determinism-gates</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.3s</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-fb7ec3a6025b5468</td>
+        <td>Healthcare AI Clinical Operations Multi-Source Build Card</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-f8f8eb8cb8df0ae5</td>
+        <td>Adaptive Memory Admission Control for LLM Agents</td>
+        <td>proof-false-done</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.3s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-f54605647db632f0</td>
+        <td>Improving Design System Adoption with Inner Source</td>
+        <td>product-design</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.3s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-f442dffc40d7b1ce</td>
+        <td>omniscout-179</td>
+        <td>healthcare-ai-ops</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.4s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-f32336cf076cc89f</td>
+        <td>Robust recalibration of aggregate probability forecasts usin</td>
+        <td>forecasting-calibration</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.4s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-f2c18ffd845fbd80</td>
+        <td>omniscout-156</td>
+        <td>agent-engineering</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.4s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-f1d25569538aba6b</td>
+        <td>Dynamic Model Routing and Cascading for Efficient LLM Infere</td>
+        <td>local-inference-fleet</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.4s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-ed2a08e72fa34402</td>
+        <td>Optimal Upgrading Strategy for the Quality, Release Time, an</td>
+        <td>pricing-finance</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.4s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-ed0a5a8618b69f0a</td>
+        <td>Ensuring Syntactic Interoperability Using Consumer‐Driven Co</td>
+        <td>determinism-gates</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.4s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-ecb56c855ad14715</td>
+        <td>A novel methodological approach to SaaS churn prediction usi</td>
+        <td>customer-success-expansion</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.4s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-e9c9d4f596f5b616</td>
+        <td>How information technology automates and augments processes:</td>
+        <td>vertical-law-cpa</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.4s</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-e8d25ed33e600100</td>
+        <td>Local LLM Inference on Apple Silicon Using MLX Framework</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-e8a9ed60a3e77c1a</td>
+        <td>Obsidian AI Second Brain with OpenClaw Agent Orchestration</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-e5263544aaaed2d2</td>
+        <td>AI Agent Workflow Automation: Multi-Source Build Card</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-e3b71cea266501c5</td>
+        <td>omniscout-107</td>
+        <td>gtm-sales</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.4s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-e22b23c496299959</td>
+        <td>A Platform Service Supply Chain: Interaction Between AI Stra</td>
+        <td>ai-business-models</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.4s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-e143a1186abad4b8</td>
+        <td>Control at Work: An Integrative, Lifespan-Informed Review</td>
+        <td>leadership-org</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.4s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-dde2b6a213404bb9</td>
+        <td>Facilitators and inhibitors of Lean Service 5.0: an assessme</td>
+        <td>operations</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.4s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-dbc70f19f2fa6d68</td>
+        <td>Verify-Gated Completion as Admission Control in Governed Mul</td>
+        <td>proof-false-done</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.4s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-d52b0e5585260006</td>
+        <td>Agentic Harness Engineering: Observability-Driven Automatic </td>
+        <td>agent-engineering</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.4s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-d516e553af936174</td>
+        <td>Skills as Verifiable Artifacts: A Trust Schema and a Bicondi</td>
+        <td>proof-false-done</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.4s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-d32c16d547bb990b</td>
+        <td>Skills as Verifiable Artifacts: A Trust Schema and a Bicondi</td>
+        <td>proof-false-done</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.4s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-d0a6ff92c56adfc9</td>
+        <td>VeRO: A Harness for Agents to Optimize Agents</td>
+        <td>agent-engineering</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.4s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-cfd9a6b87301d715</td>
+        <td>Advertising Effectiveness : The Interplay of What , When , a</td>
+        <td>gtm-sales</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.5s</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-cef0a592c364aef6</td>
+        <td>omniscout-181</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-cbbc524a4a96f8fe</td>
+        <td>Enhancing Work Productivity through Generative Artificial In</td>
+        <td>vertical-law-cpa</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.5s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-cb877042b1083648</td>
+        <td>Triggering the Personalization Backfire Effect: The Moderati</td>
+        <td>gtm-sales</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.5s</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-cb0dee3560f99ce5</td>
+        <td>omniscout-117</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-c33a2d646e38c626</td>
+        <td>Cross-Team Design System Adoption: Organizational Strategies</td>
+        <td>product-design</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.5s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-c277784ec2a705e7</td>
+        <td>Code as Agent Harness</td>
+        <td>agent-engineering</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.5s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-c1efeec5fb0ee355</td>
+        <td>The Effectiveness and Approaches of Executive Function Inter</td>
+        <td>founder-performance</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.5s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-c0705a2c02b82624</td>
+        <td>omniscout-82</td>
+        <td>strategy-decision-routing</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.5s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-bd8a39fd694f7e67</td>
+        <td>Personalization in Email Marketing: The Role of Noninformati</td>
+        <td>gtm-sales</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.5s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-bd072e1751a1726f</td>
+        <td>PACT: A Contract-Theoretic Framework for Pricing Agentic AI </td>
+        <td>ai-business-models</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.5s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-bb0efc49084c9d12</td>
+        <td>Contract Testing in Microservices-Based Systems: A Survey</td>
+        <td>determinism-gates</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.5s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-ba103a0d929bb884</td>
+        <td>El Deep Work y su incidencia en la productividad de las empr</td>
+        <td>founder-performance</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.5s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-b989430aa4014474</td>
+        <td>omniscout-160</td>
+        <td>local-inference-fleet</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.5s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-b509f3a12f5acb32</td>
+        <td>The effectiveness of workplace nutrition and physical activi</td>
+        <td>founder-performance</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.5s</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-b37ac3a674f74af3</td>
+        <td>DecodeShare-Driven Workflow Automation via Kernel Forge Agen</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-b0523780333a9ca3</td>
+        <td>omniscout-113</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-ac628b5c1e7a41e2</td>
+        <td>We Hold Ourselves Accountable: A Relational View of Team Acc</td>
+        <td>leadership-org</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.5s</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-ac008a74f973a28a</td>
+        <td>omniscout-98</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-aa0ea5f02bf3d93f</td>
+        <td>omniscout-184</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-a93277222130fbaf</td>
+        <td>Reproducible Testing of Concurrent and Distributed</td>
+        <td>determinism-gates</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.5s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-a81c413ec4a9a211</td>
+        <td>Environmental uncertainty, foresight and strategic decision </td>
+        <td>strategy-decision-routing</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.5s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-a74bf838c7b075f7</td>
+        <td>An Adaptive Pricing Framework for Real-Time AI Model Service</td>
+        <td>ai-business-models</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.6s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-a73965b99d6188c3</td>
+        <td>Towards the Combination of Model Checking and Runtime Verifi</td>
+        <td>proof-false-done</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.6s</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-a39139b6c014dc64</td>
+        <td>Scraping-Resistant Data Pipelines for AI Agent Sandboxing</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-a221783d5d03ed90</td>
+        <td>DecodeShare-Driven Workflow Automation via Agent Orchestrati</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-a1a99a849a3c2e58</td>
+        <td>Role of Lean Tools in Supporting Knowledge Creation and Perf</td>
+        <td>operations</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.6s</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-a16d62cf24f90a38</td>
+        <td>omniscout-135</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-9f8bfd145bf3e378</td>
+        <td>The relevance of Customer Retention to Organizational Growth</td>
+        <td>customer-success-expansion</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.6s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-9c20613346ff838f</td>
+        <td>Edge-LLM Inference With Cost-Aware Layer Allocation and Adap</td>
+        <td>local-inference-fleet</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.6s</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-99e2274cbbdddc78</td>
+        <td>omniscout-94</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-93b1fed8e84b10b2</td>
+        <td>omniscout-212</td>
+        <td>agent-engineering</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.6s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-9227ac0a9d7aa85a</td>
+        <td>A Study on Content Marketing Strategies for B2B Companies at</td>
+        <td>marketing-content-linkedin</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.6s</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-921931f1b3102695</td>
+        <td>OmniScout-163: Multi-source Web Scraping Infrastructure</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-9042356a0ce12592</td>
+        <td>OmniScout-150: Multi-source AI Agent Workflow Automation Bui</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-8f6691767b4906d2</td>
+        <td>Determinants of e-repurchase intentions: An integrative mode</td>
+        <td>customer-success-expansion</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.6s</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-8d2ddd27b42db30f</td>
+        <td>omniscout-179</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-8a0916c99473fde7</td>
+        <td>omniscout-100</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-895063c9252de7e2</td>
+        <td>AI Agents and Workflow Automation</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-872ac783be6456b2</td>
+        <td>Agent-as-a-Judge: Evaluate Agents with Agents</td>
+        <td>agent-engineering</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.6s</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-839dce96133c3e69</td>
+        <td>omniscout-73</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-76bae16c327b296d</td>
+        <td>Efficient regression testing of distributed real-time reacti</td>
+        <td>determinism-gates</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.6s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-7557845c488a16d3</td>
+        <td>RouterBench: A Benchmark for Multi-LLM Routing System</td>
+        <td>local-inference-fleet</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.6s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-74aac392229baa6a</td>
+        <td>omniscout-175</td>
+        <td>healthcare-ai-ops</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.6s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-7292900fc218300a</td>
+        <td>High-performance work practices and labour productivity: a s</td>
+        <td>founder-performance</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.6s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-7218aeb20777fd48</td>
+        <td>Who Grants the Agent Power? Defending Against Instruction In</td>
+        <td>proof-false-done</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.7s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-713cbe5a4afef64d</td>
+        <td>Cohort Revenue&amp;Retention Analysis: A Bayesian Approach</td>
+        <td>customer-success-expansion</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.7s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-70e03a932ad932cc</td>
+        <td>Customer Churn Prediction in the Software by Subscription mo</td>
+        <td>customer-success-expansion</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.7s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-682c3daee1d453ff</td>
+        <td>On the Use of Customer Lifetime Value As a Limit on Acquisit</td>
+        <td>pricing-finance</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.7s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-658ca6d917334886</td>
+        <td>omniscout-105</td>
+        <td>strategy-decision-routing</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.7s</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-651be4c55ae6e352</td>
+        <td>omniscout-108</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-62f9567c3a4b1726</td>
+        <td>Large Language Models for Cyber Security: A Systematic Liter</td>
+        <td>cybersecurity</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.7s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-60f81dcc93bd0799</td>
+        <td>Accounting for strategic investment decision-making under ex</td>
+        <td>strategy-decision-routing</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.7s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-606dbf1ba6374b11</td>
+        <td>Governed Evolution of Agent Runtimes through Executable Oper</td>
+        <td>agent-engineering</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.7s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-5f9f3f25a05b07c2</td>
+        <td>Beyond Customer Lifetime Valuation: Measuring the Value of A</td>
+        <td>pricing-finance</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.7s</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-5d9f66374daded0c</td>
+        <td>omniscout-179</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-5cfd151877df4c93</td>
+        <td>A competitive intelligence acquisition framework for mining </td>
+        <td>competitive-intel</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.7s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-5c4d1f07fb85b434</td>
+        <td>Reengineering professional services through automation, remo</td>
+        <td>vertical-law-cpa</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.7s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-5944d8e9bfb4aed3</td>
+        <td>Adaptive Memory Admission Control for LLM Agents</td>
+        <td>proof-false-done</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.7s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-57b1f4e4ea884896</td>
+        <td>Competitive intelligence practices in Japanese companies: mu</td>
+        <td>competitive-intel</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.7s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-578c969fe6091270</td>
+        <td>EdgeShard: Efficient LLM Inference via Collaborative Edge Co</td>
+        <td>local-inference-fleet</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.7s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-56bfc3a324cc0b22</td>
+        <td>Competitive intelligence process and tools for intelligence </td>
+        <td>competitive-intel</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.7s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-567d5fefc8eb3e42</td>
+        <td>SLM-Fusion: A Unified Framework for Model Merging, Routing, </td>
+        <td>local-inference-fleet</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.7s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-55f5e2197639cd23</td>
+        <td>Pricing Strategies of Software Vendors</td>
+        <td>pricing-finance</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.7s</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-5558e2046d9684ca</td>
+        <td>Obsidian AI Second Brain Build Card</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-54f7324f5bf32b02</td>
+        <td>A Survey on Large Language Model (LLM) Security and Privacy:</td>
+        <td>cybersecurity</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.7s</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-5254dc78c252c1c1</td>
+        <td>AI Agent Tutorial Workflow: From No-Code Builders to Structu</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-50a1e9d96097d541</td>
+        <td>Recursive Agent Harnesses</td>
+        <td>agent-engineering</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.8s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-4ea3502d88b63b71</td>
+        <td>B2B content marketing for professional services: In-person v</td>
+        <td>marketing-content-linkedin</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.8s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-4d75008ef590c5da</td>
+        <td>omniscout-126</td>
+        <td>agent-engineering</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.8s</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-4c251ac82748895a</td>
+        <td>Local LLM Inference on Apple Silicon Using MLX Framework</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-4be85bfadba6c06c</td>
+        <td>Impact of pricing schemes on a market for Software-as-a-Serv</td>
+        <td>pricing-finance</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.8s</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-48eab48b93cf1944</td>
+        <td>AI Agent Workflow Automation via Hard Decision Layer Integra</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-46e0ececa96196c0</td>
+        <td>Tail Calibration of Probabilistic Forecasts</td>
+        <td>forecasting-calibration</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.8s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-464a4a0b3404b7d5</td>
+        <td>omniscout-141</td>
+        <td>agent-engineering</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.8s</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-44db123090594930</td>
+        <td>OmniScout-122: AI Agent Workflow Automation via Schema-Groun</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-447c47901d1aa0e2</td>
+        <td>Strategic Decision-Making Under Uncertainty Through Bilevel </td>
+        <td>strategy-decision-routing</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.8s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-43df6c42b579cd80</td>
+        <td>Calibrated Probabilistic Forecasts for Arbitrary Sequences</td>
+        <td>forecasting-calibration</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.8s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-43a48363baea9d97</td>
+        <td>MRegTest: A Replay-Based Regression Testing Tool for Distrib</td>
+        <td>determinism-gates</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.8s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-426285048ace7196</td>
+        <td>Effectiveness of the Cognitive-Functional Intervention for A</td>
+        <td>founder-performance</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.8s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-40510b211793548d</td>
+        <td>An Empirical Analysis of Microservices Systems Using Consume</td>
+        <td>determinism-gates</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.8s</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-3d5dd69bde87e105</td>
+        <td>OmniScout-158: Multi-source BUILD CARD for AI Agent Workflow</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-393d1ab6f1d83dc9</td>
+        <td>Student Accountability in Team-based Learning Classes</td>
+        <td>leadership-org</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.8s</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-38127d9f85666c17</td>
+        <td>OmniScout-64: Multi-Agent Workflow Automation with Secure Cr</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-36ca95bc2730ecd1</td>
+        <td>Nova-AgentKVShift-Wiki Integration for Autonomous AI Workflo</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-31f6b685ed33fd19</td>
+        <td>omniscout-83</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-310203a24facf6a1</td>
+        <td>EXPRESS: Customer Acquisition Through Intermediaries (vs. Br</td>
+        <td>pricing-finance</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.8s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-2e9df0ce49f461e9</td>
+        <td>omniscout-81</td>
+        <td>gtm-sales</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.8s</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-2dce75dfbb54d241</td>
+        <td>AI Agents and Workflow Automation</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-2d0d210ef16f94a7</td>
+        <td>Monotonic Risk Evaluation for Multi-Agent AI Systems</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-25b5998f981e3af7</td>
+        <td>OmniScout-64: Multi-Agent AI Architecture for Secure Workflo</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-254d3a2ae759c5fc</td>
+        <td>Alternatives for testing of context-aware software systems i</td>
+        <td>proof-false-done</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.9s</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-24d9014b99d66dff</td>
+        <td>OmniScout-153: Specification-Grounded Agentic Verification w</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-1e7b3af2de61ff39</td>
+        <td>Healthcare AI Operations: Multi-Source Build Card for Clinic</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-1ca0257c513fc38a</td>
+        <td>Digital content marketing on social media along the B2B cust</td>
+        <td>marketing-content-linkedin</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.9s</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-19a0a94f3f1da08c</td>
+        <td>AI Agent Tutorial Workflow: From No-Code Platforms to Struct</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-174fa1631064e286</td>
+        <td>omniscout-182</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-169c3dc240141365</td>
+        <td>Nova-AgentKVShift-Wiki Integration for Persistent Agentic Wo</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-1360b9a12e8033e2</td>
+        <td>Verify-Gated Completion as Admission Control in Governed Mul</td>
+        <td>proof-false-done</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.9s</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-128d55dd7ed5208b</td>
+        <td>omniscout-88</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-1252013375c83909</td>
+        <td>omniscout-100</td>
+        <td>forecasting-calibration</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.9s</td>
+      </tr>
+
+      <tr class="row-yellow">
+        <td>l2-0bc272a731894430</td>
+        <td>AI Agent Workflow Automation: Multi-Source Build Card</td>
+        <td>—</td>
+        <td><span class="pill pill-yellow">Built</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>—</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-0705e93370480e90</td>
+        <td>Cloud Computing /Deep Learning Customer Churn Prediction for</td>
+        <td>customer-success-expansion</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.9s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-06600c98d95caec8</td>
+        <td>A Meta-analysis of Mindfulness-Based Interventions in Adults</td>
+        <td>founder-performance</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.9s</td>
+      </tr>
+
+      <tr class="row-green">
+        <td>l2-0437f3e9a18b3f67</td>
+        <td>Lean principles, learning, and knowledge work: Evidence from</td>
+        <td>operations</td>
+        <td><span class="pill pill-green">Verified</span></td>
+        <td>qwen3-coder:30b</td>
+        <td>739.9s</td>
+      </tr>
+</tbody>
+    </table>
+  </div>
+</section>
+
+    <footer>Generated by rig_foundry.pattern_dashboard · deterministic · no LLM calls</footer>
+  </div>
+  <script>function sortTable(tableId, col, type) {
+  const table = document.getElementById(tableId);
+  const tbody = table.querySelector('tbody');
+  const rows = Array.from(tbody.querySelectorAll('tr'));
+  let dir = table.dataset.sortDir === 'asc' ? -1 : 1;
+  if (table.dataset.sortCol === String(col)) { dir = -dir; }
+  table.dataset.sortCol = col;
+  table.dataset.sortDir = dir === 1 ? 'asc' : 'desc';
+  rows.sort((a, b) => {
+    let av = a.children[col].dataset.sort || a.children[col].textContent.trim();
+    let bv = b.children[col].dataset.sort || b.children[col].textContent.trim();
+    if (type === 'num') { av = parseFloat(av) || 0; bv = parseFloat(bv) || 0; }
+    if (av < bv) return -dir; if (av > bv) return dir; return 0;
+  });
+  rows.forEach(r => tbody.appendChild(r));
+}</script>
+</body>
+</html>
